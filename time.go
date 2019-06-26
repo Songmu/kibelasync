@@ -6,13 +6,13 @@ type Time struct {
 	time.Time
 }
 
-const rfc3339Milli = "2006-01-02T15:04:05.999Z07:00"
+const rfc3339Milli = `"2006-01-02T15:04:05.999Z07:00"`
 
 func (t *Time) UnmarshalJSON(data []byte) (err error) {
-	*t, err = time.Parse(rfc3339Milli, string(data))
+	t.Time, err = time.Parse(rfc3339Milli, string(data))
 	return
 }
 
 func (t *Time) MarshalJSON() ([]byte, error) {
-	return t.Time.Format(rfc3339Milli), nil
+	return []byte(t.Format(rfc3339Milli)), nil
 }

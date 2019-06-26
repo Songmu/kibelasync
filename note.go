@@ -64,7 +64,7 @@ func listNoteQuery() string {
 // .data.note
 func getNoteQuery(id string) string {
 	return fmt.Sprintf(`{
-  note(id: "QmxvZy8zNjY") {
+  note(id: "%s") {
     id
     title
     content
