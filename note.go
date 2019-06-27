@@ -27,10 +27,11 @@ import "fmt"
 type note struct {
 	ID        `json:"id"`
 	Title     string `json:"title"`
+	Content   string `json:"content"`
 	CoEditing bool   `json:"coediting"`
 	Folder    string `json:"folderName"`
-	Groups    struct {
-		ID   string `json:"id"`
+	Groups    []struct {
+		ID   `json:"id"`
 		Name string `json:"name"`
 	}
 	Author struct {

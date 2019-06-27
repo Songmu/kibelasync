@@ -2,7 +2,6 @@ package kibela
 
 import (
 	"testing"
-	"time"
 )
 
 /*
@@ -29,8 +28,6 @@ import (
 */
 
 func TestMD_fullContent(t *testing.T) {
-	tt, _ := time.Parse(rfc3339Milli, "2019-06-23T17:22:38.496Z")
-
 	m := &md{
 		FrontMatter: &meta{
 			ID:        ID("QmxvZy8zNjY"),
@@ -39,7 +36,6 @@ func TestMD_fullContent(t *testing.T) {
 			Folder:    "hoge/fuga",
 			Groups:    []string{"Public", "Hobby"},
 			Author:    "Songmu",
-			UpdatedAt: Time{Time: tt},
 		},
 		Content: "Hello World!\nこんにちは!\n",
 	}
@@ -53,8 +49,8 @@ groups:
 - Public
 - Hobby
 title: たいとる！
-updatedAt: "2019-06-23T17:22:38.496Z"
 ---
+
 Hello World!
 こんにちは!
 `
