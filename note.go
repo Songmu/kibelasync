@@ -18,10 +18,10 @@ import "fmt"
      "author": {
        "account": "Songmu"
      },
-     "createdAt": "2019-06-23T16:54:09.447+09:00",
-     "publishedAt": "2019-06-23T16:54:09.444+09:00",
-     "contentUpdatedAt": "2019-06-23T16:54:09.445+09:00",
-     "updatedAt": "2019-06-23T17:22:38.496+09:00"
+     "createdAt": "2019-06-23T16:54:09.447Z",
+     "publishedAt": "2019-06-23T16:54:09.444Z",
+     "contentUpdatedAt": "2019-06-23T16:54:09.445Z",
+     "updatedAt": "2019-06-23T17:22:38.496Z"
    },
 */
 type note struct {
