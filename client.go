@@ -37,7 +37,7 @@ func newClient() (*client, error) {
 		return nil, fmt.Errorf("set team name by KIBELA_TEAM env value")
 	}
 	cli.endpoint = fmt.Sprintf(endpointBase, team)
-	cli.cli = http.DefaultClient
+	cli.cli = &http.Client{Transport: newRateLimitRoundTripper()}
 	cli.userAgent = defaultUserAgent
 	return cli, nil
 }
