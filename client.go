@@ -17,10 +17,14 @@ func init() {
 	defaultUserAgent = "Songmu-kibela/" + version + " (+https://github.com/Songmu/kibela)"
 }
 
+type doer interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 type client struct {
 	token, endpoint string
 	userAgent       string
-	cli             *http.Client
+	cli             doer
 }
 
 func newClient() (*client, error) {
