@@ -48,7 +48,7 @@ const totalCountQuery = `{
 }`
 
 // .data.notes.nodes[]
-func listNoteQuery() string {
+func listNoteQuery(num int) string {
 	return fmt.Sprintf(`{
   notes(first: %d) {
     nodes {
@@ -56,14 +56,13 @@ func listNoteQuery() string {
       updatedAt
     }
   }
-}`, 100)
+}`, num)
 }
 
 // .data.note
-func getNoteQuery(id string) string {
+func getNoteQuery(id ID) string {
 	return fmt.Sprintf(`{
   note(id: "%s") {
-    id
     title
     content
     coediting
@@ -77,5 +76,5 @@ func getNoteQuery(id string) string {
     }
     updatedAt
   }
-}`, id)
+}`, string(id))
 }
