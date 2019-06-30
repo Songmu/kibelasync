@@ -38,7 +38,7 @@ func newClient() (*client, error) {
 	return cli, nil
 }
 
-func (cli *client) Do(pa *payload) (*http.Response, error) {
+func (cli *client) Do(pa *payload) (*gqResponse, error) {
 	body := bytes.Buffer{}
 	if err := json.NewEncoder(&body).Encode(pa); err != nil {
 		return nil, err
@@ -56,17 +56,19 @@ func (cli *client) Do(pa *payload) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		defer resp.Body.Close()
 		bs, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("API response with code: %d, %s", resp.StatusCode, err)
 		}
-		// gerr := &gqError{}
-		// err := json.NewDecoder(resp.Body).Decode(gerr)
 		return nil, fmt.Errorf("API response with code: %d, response: %s", resp.StatusCode, string(bs))
 	}
-	return resp, nil
+	var gResp gqResponse
+	if err := json.NewDecoder(resp.Body).Decode(&gResp); err != nil {
+		return nil, err
+	}
+	return &gResp, nil
 }
 
 type payload struct {
