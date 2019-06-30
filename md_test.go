@@ -1,6 +1,8 @@
 package kibela
 
 import (
+	"os"
+	"reflect"
 	"testing"
 )
 
@@ -27,8 +29,8 @@ import (
    },
 */
 
-func TestMD_fullContent(t *testing.T) {
-	m := &md{
+func newTestMD() *md {
+	return &md{
 		ID: ID("QmxvZy8zNjY"),
 		FrontMatter: &meta{
 			Title:     "たいとる！",
@@ -39,7 +41,10 @@ func TestMD_fullContent(t *testing.T) {
 		},
 		Content: "Hello World!\nこんにちは!\n",
 	}
+}
 
+func TestMD_fullContent(t *testing.T) {
+	m := newTestMD()
 	out := m.fullContent()
 	expect := `---
 author: Songmu
@@ -56,5 +61,23 @@ Hello World!
 `
 	if out != expect {
 		t.Errorf("m.fullContent() = got:\n%s\nexpect:\n%s\n", out, expect)
+	}
+}
+
+func TestLoadMD(t *testing.T) {
+	fpath := "testdata/notes/366.md"
+	fi, err := os.Stat(fpath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m, err := loadMD(fpath)
+	if err != nil {
+		t.Errorf("error should be nil but: %s", err)
+	}
+	expect := newTestMD()
+	expect.filepath = fpath
+	expect.UpdatedAt = fi.ModTime()
+	if !reflect.DeepEqual(*m, *expect) {
+		t.Errorf("got: %+v\nexpect: %+v", *m, *expect)
 	}
 }
