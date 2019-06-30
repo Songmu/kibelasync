@@ -57,3 +57,26 @@ func listGroupQuery(num int) string {
   }
 }`, num)
 }
+
+func updateNoteMutation() string {
+	return `mutation($id: ID!, $baseNote: NoteInput!, $newNote: NoteInput!) {
+  updateNote(input: {
+    id: $id,
+    baseNote: $baseNote,
+    newNote: $newNote,
+    draft: false })
+  {
+    note {
+      updatedAt
+    }
+  }
+}`
+}
+
+type noteInput struct {
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	GroupIDs  []ID   `json:"groupIds"`
+	Folder    string `json:"folderName,omitempty"`
+	CoEditing bool   `json:"coediting"`
+}
