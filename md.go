@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,8 @@ type md struct {
 	FrontMatter *meta
 	Content     string
 	UpdatedAt   time.Time
+
+	filepath string
 }
 
 type meta struct {
@@ -48,7 +51,10 @@ func (m *md) save() error {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
 	basePath := "." // XXX
-	savePath := filepath.Join(basePath, "notes", fmt.Sprintf("%d.md", idNum))
+	savePath := m.filepath
+	if savePath == "" {
+		savePath = filepath.Join(basePath, "notes", fmt.Sprintf("%d.md", idNum))
+	}
 	if err := os.MkdirAll(filepath.Dir(savePath), 0755); err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
@@ -61,4 +67,48 @@ func (m *md) save() error {
 		}
 	}
 	return nil
+}
+
+func loadMD(fpath string) (*md, error) {
+	fname := filepath.Base(fpath)
+	stuffs := strings.Split(fname, ".")
+	if len(stuffs) != 2 {
+		return nil, fmt.Errorf("invalid filename (must be [0-9]+.md): %s", fname)
+	}
+	if stuffs[1] != "md" {
+		return nil, fmt.Errorf("invalid filename (must be [0-9]+.md): %s", fname)
+	}
+	if _, err := strconv.Atoi(stuffs[0]); err != nil {
+		return nil, fmt.Errorf("invalid filename (must be [0-9]+.md): %s", fname)
+	}
+	mdNumStr := stuffs[0]
+
+	f, err := os.Open(fpath)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load md: %s, %w", fpath, err)
+	}
+	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load md: %s, %w", fpath, err)
+	}
+	contents := strings.SplitN(string(b), "---\n", 3)
+	if len(contents) != 3 || contents[0] != "" {
+		return nil, fmt.Errorf("invalid contents of md: %s", string(b))
+	}
+	var me meta
+	if err := yaml.Unmarshal([]byte(contents[1]), &me); err != nil {
+		return nil, xerrors.Errorf("invalid frontmatter: %w", err)
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load md: %w", err)
+	}
+	return &md{
+		ID:          newID(fmt.Sprintf("Blog/%s", mdNumStr)),
+		FrontMatter: &me,
+		Content:     strings.TrimSpace(contents[2]) + "\n",
+		UpdatedAt:   fi.ModTime(),
+		filepath:    fpath,
+	}, nil
 }

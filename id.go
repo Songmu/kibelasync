@@ -11,6 +11,10 @@ import (
 
 type ID string
 
+func newID(str string) ID {
+	return ID(base64.RawStdEncoding.EncodeToString([]byte(str)))
+}
+
 func (i ID) String() string {
 	s, _ := base64.RawStdEncoding.DecodeString(string(i))
 	return string(s)
