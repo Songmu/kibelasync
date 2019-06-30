@@ -29,8 +29,8 @@ import (
 
 func TestMD_fullContent(t *testing.T) {
 	m := &md{
+		ID: ID("QmxvZy8zNjY"),
 		FrontMatter: &meta{
-			ID:        ID("QmxvZy8zNjY"),
 			Title:     "たいとる！",
 			CoEditing: true,
 			Folder:    "hoge/fuga",
