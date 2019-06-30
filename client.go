@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	"golang.org/x/xerrors"
 )
 
 const endpointBase = "https://%s.kibe.la/api/v1"
@@ -42,6 +40,14 @@ func newClient() (*client, error) {
 	cli.cli = &http.Client{Transport: newRateLimitRoundTripper()}
 	cli.userAgent = defaultUserAgent
 	return cli, nil
+}
+
+func mustClient() *client {
+	cli, err := newClient()
+	if err != nil {
+		panic(err)
+	}
+	return cli
 }
 
 func (cli *client) Do(pa *payload) (*gqResponse, error) {
@@ -88,30 +94,4 @@ type payload struct {
 type gqResponse struct {
 	Errors gqErrors        `json:"message,omitempty"`
 	Data   json.RawMessage `json:"data,omitempty"`
-}
-
-/*
-{
-  "data": {
-    "notes": {
-      "totalCount": 353
-    }
-  }
-}
-*/
-// OK
-func (cli *client) getNotesCount() (int, error) {
-	gResp, err := cli.Do(&payload{Query: totalCountQuery})
-	if err != nil {
-		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
-	}
-	var res struct {
-		Notes struct {
-			TotalCount int `json:"totalCount"`
-		} `json:"notes"`
-	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
-	}
-	return res.Notes.TotalCount, nil
 }

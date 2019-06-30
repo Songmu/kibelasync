@@ -1,6 +1,10 @@
 package kibela
 
-import "fmt"
+import (
+	"encoding/json"
+
+	"golang.org/x/xerrors"
+)
 
 /*
    {
@@ -40,41 +44,28 @@ type note struct {
 	UpdatedAt Time `json:"updatedAt"`
 }
 
-// .data/notes.totalCount
-const totalCountQuery = `{
-  notes() {
-    totalCount
-  }
-}`
-
-// .data.notes.nodes[]
-func listNoteQuery(num int) string {
-	return fmt.Sprintf(`{
-  notes(first: %d) {
-    nodes {
-      id
-      updatedAt
+/*
+{
+  "data": {
+    "notes": {
+      "totalCount": 353
     }
   }
-}`, num)
 }
-
-// .data.note
-func getNoteQuery(id ID) string {
-	return fmt.Sprintf(`{
-  note(id: "%s") {
-    title
-    content
-    coediting
-    folderName
-    groups {
-      name
-      id
-    }
-    author {
-      account
-    }
-    updatedAt
-  }
-}`, string(id))
+*/
+// OK
+func (cli *client) getNotesCount() (int, error) {
+	gResp, err := cli.Do(&payload{Query: totalCountQuery})
+	if err != nil {
+		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+	}
+	var res struct {
+		Notes struct {
+			TotalCount int `json:"totalCount"`
+		} `json:"notes"`
+	}
+	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+	}
+	return res.Notes.TotalCount, nil
 }
