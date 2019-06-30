@@ -37,10 +37,7 @@ type note struct {
 	Author struct {
 		Account string `json:"account"`
 	}
-	CreatedAt        Time `json:"createdAt"`
-	PublishedAt      Time `json:"publishedAt"`
-	UpdatedAt        Time `json:"updatedAt"`
-	ContentUpdatedAt Time `json:"contentUpdatedAt"`
+	UpdatedAt Time `json:"updatedAt"`
 }
 
 // .data/notes.totalCount
@@ -78,9 +75,6 @@ func getNoteQuery(id string) string {
     author {
       account
     }
-    createdAt
-    publishedAt
-    contentUpdatedAt
     updatedAt
   }
 }`, id)

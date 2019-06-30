@@ -48,10 +48,6 @@ func TestNoteUnmarshalJSON(t *testing.T) {
 		}{
 			Account: "Songmu",
 		},
-		// CreatedAt:        mustTime("2019-06-23T16:54:09.447+09:00"),
-		// PublishedAt:      mustTime("2019-06-23T16:54:09.444+09:00"),
-		// ContentUpdatedAt: mustTime("2019-06-23T16:54:09.445+09:00"),
-		// UpdatedAt:        mustTime("2019-06-23T17:22:38.496+09:00"),
 	}
 
 	if !reflect.DeepEqual(n, expect) {
