@@ -1,5 +1,7 @@
 package kibela
 
+import "strings"
+
 /*
 {
   "errors": [
@@ -12,6 +14,18 @@ package kibela
   ]
 }
 */
+type gqErrors []gqError
+
+func (gqE gqErrors) Error() string {
+	errs := make([]string, len(gqE))
+	for i, e := range gqE {
+		errs[i] = e.Message
+	}
+	if len(errs) == 0 {
+		return "unknown error"
+	}
+	return strings.Join(errs, "\n")
+}
 
 type gqError struct {
 	Message    string            `json:"message"`
