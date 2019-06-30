@@ -19,7 +19,7 @@ type md struct {
 	Content     string
 	UpdatedAt   time.Time
 
-	filepath string
+	dir, filepath string
 }
 
 type meta struct {
@@ -50,10 +50,13 @@ func (m *md) save() error {
 	if err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
-	basePath := "." // XXX
 	savePath := m.filepath
 	if savePath == "" {
-		savePath = filepath.Join(basePath, "notes", fmt.Sprintf("%d.md", idNum))
+		basePath := m.dir
+		if basePath == "" {
+			basePath = "notes"
+		}
+		savePath = filepath.Join(basePath, fmt.Sprintf("%d.md", idNum))
 	}
 	if err := os.MkdirAll(filepath.Dir(savePath), 0755); err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)

@@ -44,6 +44,26 @@ type note struct {
 	UpdatedAt Time `json:"updatedAt"`
 }
 
+func (n *note) toMD(dir string) *md {
+	gps := make([]string, len(n.Groups))
+	for i, g := range n.Groups {
+		gps[i] = g.Name
+	}
+	return &md{
+		ID:        n.ID,
+		Content:   n.Content,
+		UpdatedAt: n.UpdatedAt.Time,
+		dir:       dir,
+		FrontMatter: &meta{
+			Title:     n.Title,
+			CoEditing: n.CoEditing,
+			Folder:    n.Folder,
+			Groups:    gps,
+			Author:    n.Author.Account,
+		},
+	}
+}
+
 /*
 {
   "data": {
