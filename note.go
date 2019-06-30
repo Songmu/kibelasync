@@ -2,6 +2,10 @@ package kibela
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
 
 	"golang.org/x/xerrors"
 )
@@ -109,4 +113,53 @@ func (cli *client) listNoteIDs() ([]*note, error) {
 		return nil, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
 	}
 	return res.Notes.Nodes, nil
+}
+
+// OK
+func (cli *client) getNote(id ID) (*note, error) {
+	gResp, err := cli.Do(&payload{Query: getNoteQuery(id)})
+	if err != nil {
+		return nil, xerrors.Errorf("failed to cli.getNote: %w", err)
+	}
+	var res struct {
+		Note *note `json:"note"`
+	}
+	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+		return nil, xerrors.Errorf("failed to cli.getNote: %w", err)
+	}
+	return res.Note, nil
+}
+
+func (cli *client) pullNotes(dir string) error {
+	notes, err := cli.listNoteIDs()
+	if err != nil {
+		return xerrors.Errorf("failed to pullNotes: %w", err)
+	}
+	for _, n := range notes {
+		localT := time.Time{}
+		idNum, err := n.ID.Number()
+		if err != nil {
+			return xerrors.Errorf("failed to pullNotes: %w", err)
+		}
+		mdFilePath := filepath.Join(dir, fmt.Sprintf("%d.md", idNum))
+		_, err = os.Stat(mdFilePath)
+		if err == nil {
+			localMD, err := loadMD(mdFilePath)
+			if err != nil {
+				return xerrors.Errorf("failed to pullNotes: %w", err)
+			}
+			localT = localMD.UpdatedAt
+		}
+		if n.UpdatedAt.After(localT) {
+			allNote, err := cli.getNote(n.ID)
+			if err != nil {
+				return xerrors.Errorf("failed to pullNotes: %w", err)
+			}
+			allNote.ID = n.ID
+			if err := allNote.toMD(dir).save(); err != nil {
+				return xerrors.Errorf("failed to pullNotes: %w", err)
+			}
+		}
+	}
+	return nil
 }
