@@ -5,16 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 )
-
-func mustTime(tstr string) Time {
-	tt, err := time.Parse(rfc3339Milli, "2019-06-23T17:22:38.496Z")
-	if err != nil {
-		panic(err)
-	}
-	return Time{Time: tt}
-}
 
 func TestNoteUnmarshalJSON(t *testing.T) {
 	input := `{
