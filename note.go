@@ -69,3 +69,24 @@ func (cli *client) getNotesCount() (int, error) {
 	}
 	return res.Notes.TotalCount, nil
 }
+
+// OK
+func (cli *client) listNoteIDs() ([]*note, error) {
+	num, err := cli.getNotesCount()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to cli.listNodeIDs: %w", err)
+	}
+	gResp, err := cli.Do(&payload{Query: listNoteQuery(num)})
+	if err != nil {
+		return nil, xerrors.Errorf("failed to cli.getGroups: %w", err)
+	}
+	var res struct {
+		Notes struct {
+			Nodes []*note `json:"nodes"`
+		} `json:"notes"`
+	}
+	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+		return nil, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+	}
+	return res.Notes.Nodes, nil
+}
