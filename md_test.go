@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -44,8 +45,7 @@ func newTestMD() *md {
 }
 
 func TestMD_fullContent(t *testing.T) {
-	m := newTestMD()
-	out := m.fullContent()
+	out := newTestMD().fullContent()
 	expect := `---
 author: Songmu
 coediting: true
@@ -64,18 +64,44 @@ Hello World!
 	}
 }
 
-func TestLoadMD(t *testing.T) {
-	fpath := "testdata/notes/366.md"
-	fi, err := os.Stat(fpath)
+const testMDPath = "testdata/notes/366.md"
+
+func TestMD_save(t *testing.T) {
+	m := newTestMD()
+	tmpf, err := ioutil.TempFile("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, err := loadMD(fpath)
+	defer os.RemoveAll(tmpf.Name())
+	tmpf.Close()
+	m.filepath = tmpf.Name()
+	if err := m.save(); err != nil {
+		t.Errorf("error should be nil, but: %s", err)
+	}
+	out, err := ioutil.ReadFile(tmpf.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect, err := ioutil.ReadFile(testMDPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(out) != string(expect) {
+		t.Errorf("out:\n%s\nexpect:\n%s\n", string(out), string(expect))
+	}
+}
+
+func TestLoadMD(t *testing.T) {
+	fi, err := os.Stat(testMDPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m, err := loadMD(testMDPath)
 	if err != nil {
 		t.Errorf("error should be nil but: %s", err)
 	}
 	expect := newTestMD()
-	expect.filepath = fpath
+	expect.filepath = testMDPath
 	expect.UpdatedAt = fi.ModTime()
 	if !reflect.DeepEqual(*m, *expect) {
 		t.Errorf("got: %+v\nexpect: %+v", *m, *expect)
