@@ -13,16 +13,27 @@ package kibela
 }
 */
 
-type gqErrors struct {
-	Errors []gqError   `json:"message"`
-	Data   interface{} `json:"data,omitempty"`
-}
-
 type gqError struct {
 	Message    string            `json:"message"`
+	Locations  []gqErrorLocation `json:"locations,omitempty"`
+	Path       []interface{}     `json:"path,omitempty"` // string or uint
 	Extensions gqErrorExtensions `json:"extensions"`
 }
 
+type gqErrorLocation struct {
+	Line   uint `json:"line"`
+	Column uint `json:"column"`
+}
+
+type gqErrorCode string
+
+const (
+	requestLimitExceeded gqErrorCode = "REQUEST_LIMIT_EXCEEDED"
+	tokenBudgetExhausted gqErrorCode = "TOKEN_BUDGET_EXHAUSTED"
+	teamBudgetExhausted  gqErrorCode = "TEAM_BUDGET_EXHAUSTED"
+)
+
 type gqErrorExtensions struct {
-	Code string `json:"code"`
+	Code              gqErrorCode `json:"code"`
+	WaitMilliSecondes uint        `json:"waitMilliseconds,omitempty"`
 }

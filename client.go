@@ -73,3 +73,8 @@ type payload struct {
 	Query     string      `json:"query"`
 	Variables interface{} `json:"variables,omitempty"`
 }
+
+type gqResponse struct {
+	Errors []gqError   `json:"message,omitempty"`
+	Data   interface{} `json:"data,omitempty"`
+}
