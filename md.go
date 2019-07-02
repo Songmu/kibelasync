@@ -50,22 +50,21 @@ func (m *md) save() error {
 	if err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
-	savePath := m.filepath
-	if savePath == "" {
+	if m.filepath == "" {
 		basePath := m.dir
 		if basePath == "" {
 			basePath = "notes"
 		}
-		savePath = filepath.Join(basePath, fmt.Sprintf("%d.md", idNum))
+		m.filepath = filepath.Join(basePath, fmt.Sprintf("%d.md", idNum))
 	}
-	if err := os.MkdirAll(filepath.Dir(savePath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.filepath), 0755); err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
-	if err := ioutil.WriteFile(savePath, []byte(m.fullContent()), 0644); err != nil {
+	if err := ioutil.WriteFile(m.filepath, []byte(m.fullContent()), 0644); err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
 	if !m.UpdatedAt.IsZero() {
-		if err := os.Chtimes(savePath, m.UpdatedAt, m.UpdatedAt); err != nil {
+		if err := os.Chtimes(m.filepath, m.UpdatedAt, m.UpdatedAt); err != nil {
 			return xerrors.Errorf("failed to set mtime to Markdown: %w", err)
 		}
 	}
@@ -135,4 +134,12 @@ func (m *md) toNote() *note {
 		},
 		UpdatedAt: Time{Time: m.UpdatedAt},
 	}
+}
+
+func (ki *kibela) pushMD(m *md) error {
+	n := m.toNote()
+	if err := ki.pushNote(n); err != nil {
+		return xerrors.Errorf("failed to pushMD: %w", err)
+	}
+	return os.Chtimes(m.filepath, n.UpdatedAt.Time, n.UpdatedAt.Time)
 }
