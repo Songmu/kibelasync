@@ -34,7 +34,8 @@ func printVersion(out io.Writer) error {
 }
 
 type kibela struct {
-	cli *client.Client
+	cli    *client.Client
+	groups map[string]ID
 }
 
 func newKibela() (*kibela, error) {

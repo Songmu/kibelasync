@@ -34,10 +34,7 @@ func TestNoteUnmarshalJSON(t *testing.T) {
 		Content:   "コンテント!\nコンテント",
 		CoEditing: true,
 		Folder:    "testtop/testsub1",
-		Groups: []struct {
-			ID   `json:"id"`
-			Name string `json:"name"`
-		}{
+		Groups: []*group{
 			{
 				ID:   ID("R3JvdXAvMQ"),
 				Name: "Home",

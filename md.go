@@ -115,3 +115,24 @@ func loadMD(fpath string) (*md, error) {
 		filepath:    fpath,
 	}, nil
 }
+
+func (m *md) toNote() *note {
+	groups := make([]*group, len(m.FrontMatter.Groups))
+	for i, g := range m.FrontMatter.Groups {
+		groups[i] = &group{Name: g}
+	}
+	return &note{
+		ID:        m.ID,
+		Title:     m.FrontMatter.Title,
+		Content:   m.Content,
+		CoEditing: m.FrontMatter.CoEditing,
+		Folder:    m.FrontMatter.Folder,
+		Groups:    groups,
+		Author: struct {
+			Account string `json:"account"`
+		}{
+			Account: m.FrontMatter.Author,
+		},
+		UpdatedAt: Time{Time: m.UpdatedAt},
+	}
+}
