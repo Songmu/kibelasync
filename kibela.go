@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+
+	"github.com/Songmu/kibela/client"
+	"golang.org/x/xerrors"
 )
 
 const cmdName = "kibela"
@@ -28,4 +31,16 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 func printVersion(out io.Writer) error {
 	_, err := fmt.Fprintf(out, "%s v%s (rev:%s)\n", cmdName, version, revision)
 	return err
+}
+
+type kibela struct {
+	cli *client.Client
+}
+
+func newKibela() (*kibela, error) {
+	cli, err := client.New()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to newKibela: %w", err)
+	}
+	return &kibela{cli: cli}, nil
 }

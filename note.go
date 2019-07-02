@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Songmu/kibela/client"
 	"golang.org/x/xerrors"
 )
 
@@ -78,10 +79,10 @@ func (n *note) toMD(dir string) *md {
 }
 */
 // OK
-func (cli *client) getNotesCount() (int, error) {
-	gResp, err := cli.Do(&payload{Query: totalCountQuery})
+func (ki *kibela) getNotesCount() (int, error) {
+	gResp, err := ki.cli.Do(&client.Payload{Query: totalCountQuery})
 	if err != nil {
-		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	var res struct {
 		Notes struct {
@@ -89,20 +90,20 @@ func (cli *client) getNotesCount() (int, error) {
 		} `json:"notes"`
 	}
 	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.TotalCount, nil
 }
 
 // OK
-func (cli *client) listNoteIDs() ([]*note, error) {
-	num, err := cli.getNotesCount()
+func (ki *kibela) listNoteIDs() ([]*note, error) {
+	num, err := ki.getNotesCount()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to cli.listNodeIDs: %w", err)
+		return nil, xerrors.Errorf("failed to ki.listNodeIDs: %w", err)
 	}
-	gResp, err := cli.Do(&payload{Query: listNoteQuery(num)})
+	gResp, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num)})
 	if err != nil {
-		return nil, xerrors.Errorf("failed to cli.getGroups: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
 	}
 	var res struct {
 		Notes struct {
@@ -110,28 +111,28 @@ func (cli *client) listNoteIDs() ([]*note, error) {
 		} `json:"notes"`
 	}
 	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return nil, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.Nodes, nil
 }
 
 // OK
-func (cli *client) getNote(id ID) (*note, error) {
-	gResp, err := cli.Do(&payload{Query: getNoteQuery(id)})
+func (ki *kibela) getNote(id ID) (*note, error) {
+	gResp, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
 	if err != nil {
-		return nil, xerrors.Errorf("failed to cli.getNote: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	var res struct {
 		Note *note `json:"note"`
 	}
 	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return nil, xerrors.Errorf("failed to cli.getNote: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	return res.Note, nil
 }
 
-func (cli *client) pullNotes(dir string) error {
-	notes, err := cli.listNoteIDs()
+func (ki *kibela) pullNotes(dir string) error {
+	notes, err := ki.listNoteIDs()
 	if err != nil {
 		return xerrors.Errorf("failed to pullNotes: %w", err)
 	}
@@ -151,7 +152,7 @@ func (cli *client) pullNotes(dir string) error {
 			localT = localMD.UpdatedAt
 		}
 		if n.UpdatedAt.After(localT) {
-			allNote, err := cli.getNote(n.ID)
+			allNote, err := ki.getNote(n.ID)
 			if err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}

@@ -1,4 +1,4 @@
-package kibela
+package client
 
 import (
 	"net/http"

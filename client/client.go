@@ -1,4 +1,4 @@
-package kibela
+package client
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"golang.org/x/xerrors"
 )
 
 const endpointBase = "https://%s.kibe.la/api/v1"
@@ -14,21 +16,21 @@ const endpointBase = "https://%s.kibe.la/api/v1"
 var defaultUserAgent string
 
 func init() {
-	defaultUserAgent = "Songmu-kibela/" + version + " (+https://github.com/Songmu/kibela)"
+	defaultUserAgent = "Songmu-kibela/0.0.0 (+https://github.com/Songmu/kibela)"
 }
 
 type doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-type client struct {
+type Client struct {
 	token, endpoint string
 	userAgent       string
 	cli             doer
 }
 
-func newClient() (*client, error) {
-	cli := &client{token: os.Getenv("KIBELA_TOKEN")}
+func New() (*Client, error) {
+	cli := &Client{token: os.Getenv("KIBELA_TOKEN")}
 	if cli.token == "" {
 		return nil, fmt.Errorf("set token by KIBELA_TOKEN env value")
 	}
@@ -42,15 +44,7 @@ func newClient() (*client, error) {
 	return cli, nil
 }
 
-func mustClient() *client {
-	cli, err := newClient()
-	if err != nil {
-		panic(err)
-	}
-	return cli
-}
-
-func (cli *client) Do(pa *payload) (*gqResponse, error) {
+func (cli *Client) Do(pa *Payload) (*Response, error) {
 	body := bytes.Buffer{}
 	if err := json.NewEncoder(&body).Encode(pa); err != nil {
 		return nil, err
@@ -69,14 +63,17 @@ func (cli *client) Do(pa *payload) (*gqResponse, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, ErrorTooManyRequet
+	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		bs, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("API response with code: %d, %s", resp.StatusCode, err)
+			return nil, xerrors.Errorf("API response with code: %d, %s", resp.StatusCode, err)
 		}
 		return nil, fmt.Errorf("API response with code: %d, response: %s", resp.StatusCode, string(bs))
 	}
-	var gResp gqResponse
+	var gResp Response
 	if err := json.NewDecoder(resp.Body).Decode(&gResp); err != nil {
 		return nil, err
 	}
@@ -86,12 +83,12 @@ func (cli *client) Do(pa *payload) (*gqResponse, error) {
 	return &gResp, nil
 }
 
-type payload struct {
+type Payload struct {
 	Query     string      `json:"query"`
 	Variables interface{} `json:"variables,omitempty"`
 }
 
-type gqResponse struct {
-	Errors gqErrors        `json:"message,omitempty"`
+type Response struct {
+	Errors Errors          `json:"message,omitempty"`
 	Data   json.RawMessage `json:"data,omitempty"`
 }

@@ -3,6 +3,7 @@ package kibela
 import (
 	"encoding/json"
 
+	"github.com/Songmu/kibela/client"
 	"golang.org/x/xerrors"
 )
 
@@ -21,10 +22,10 @@ type group struct {
 }
 */
 // OK
-func (cli *client) getGroupCount() (int, error) {
-	gResp, err := cli.Do(&payload{Query: totalGroupCountQuery})
+func (ki *kibela) getGroupCount() (int, error) {
+	gResp, err := ki.cli.Do(&client.Payload{Query: totalGroupCountQuery})
 	if err != nil {
-		return 0, xerrors.Errorf("failed to cli.getGroupCount: %w", err)
+		return 0, xerrors.Errorf("failed to ki.getGroupCount: %w", err)
 	}
 	var res struct {
 		Groups struct {
@@ -32,7 +33,7 @@ func (cli *client) getGroupCount() (int, error) {
 		} `json:"groups"`
 	}
 	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return 0, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Groups.TotalCount, nil
 }
@@ -56,14 +57,14 @@ func (cli *client) getGroupCount() (int, error) {
 }
 */
 // OK
-func (cli *client) getGroups() ([]*group, error) {
-	num, err := cli.getGroupCount()
+func (ki *kibela) getGroups() ([]*group, error) {
+	num, err := ki.getGroupCount()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to getGroups: %w", err)
 	}
-	gResp, err := cli.Do(&payload{Query: listGroupQuery(num)})
+	gResp, err := ki.cli.Do(&client.Payload{Query: listGroupQuery(num)})
 	if err != nil {
-		return nil, xerrors.Errorf("failed to cli.getGroups: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
 	}
 	var res struct {
 		Groups struct {
@@ -71,7 +72,7 @@ func (cli *client) getGroups() ([]*group, error) {
 		} `json:"groups"`
 	}
 	if err := json.Unmarshal(gResp.Data, &res); err != nil {
-		return nil, xerrors.Errorf("failed to cli.getNotesCount: %w", err)
+		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Groups.Nodes, nil
 }
