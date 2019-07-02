@@ -95,15 +95,58 @@ func (ki *kibela) getNotesCount() (int, error) {
 	return res.Notes.TotalCount, nil
 }
 
+const (
+	// max query cost per request is 10,000
+	// so adjust limit size to not exceed the limit
+	// 100 (base) = 2 (id, updatedAt) * 4900 = 9900
+	bundleLimit = 4900
+	// 100 (base) = 3 (id, updatedAt, cursor) * 3200 = 9700
+	pageLimit = 3200
+)
+
 // OK
 func (ki *kibela) listNoteIDs() ([]*note, error) {
 	num, err := ki.getNotesCount()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNodeIDs: %w", err)
 	}
+	if num > bundleLimit {
+		nextCursor := ""
+		rest := num
+		notes := make([]*note, 0, num)
+		for rest > 0 {
+			take := pageLimit
+			if take > rest {
+				take = rest
+			}
+			rest = rest - take
+			data, err := ki.cli.Do(&client.Payload{Query: listNotePaginateQuery(take, nextCursor)})
+			if err != nil {
+				return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
+			}
+			var res struct {
+				Notes struct {
+					Edges []struct {
+						Node   *note  `json:"node"`
+						Cursor string `json:"cursor"`
+					} `json:"edges"`
+				} `json:"notes"`
+			}
+			if err := json.Unmarshal(data, &res); err != nil {
+				return nil, xerrors.Errorf("failed to ki.listNoteIDs: %w", err)
+			}
+			if len(res.Notes.Edges) > 0 {
+				nextCursor = res.Notes.Edges[len(res.Notes.Edges)-1].Cursor
+			}
+			for _, n := range res.Notes.Edges {
+				notes = append(notes, n.Node)
+			}
+		}
+		return notes, nil
+	}
 	gResp, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num)})
 	if err != nil {
-		return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
+		return nil, xerrors.Errorf("failed to ki.listNoteIDs: %w", err)
 	}
 	var res struct {
 		Notes struct {

@@ -73,9 +73,13 @@ func getNoteQuery(id ID) string {
 }
 */
 func listNotePaginateQuery(num int, cursor string) string {
-	// cursor is base64 encoded number. ex. "Nw" = 7
+	query := fmt.Sprintf("first: %d", num)
+	if cursor != "" {
+		// cursor is base64 encoded number. ex. "Nw" = 7
+		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
+	}
 	return fmt.Sprintf(`{
-  notes(first: %d, after: "%s"){
+  notes(%s){
     edges {
       node {
         id
@@ -84,7 +88,7 @@ func listNotePaginateQuery(num int, cursor string) string {
       cursor
     }
   }
-}`, num, cursor)
+}`, query)
 }
 
 const totalGroupCountQuery = `{
