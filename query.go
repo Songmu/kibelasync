@@ -118,9 +118,9 @@ const updateNoteMutation = `mutation($id: ID!, $baseNote: NoteInput!, $newNote: 
 }`
 
 type noteInput struct {
-	Title     string `json:"title"`
-	Content   string `json:"content"`
-	GroupIDs  []ID   `json:"groupIds"`
-	Folder    string `json:"folderName,omitempty"`
-	CoEditing bool   `json:"coediting"`
+	Title     string   `json:"title"`
+	Content   string   `json:"content"`
+	GroupIDs  []string `json:"groupIds"`
+	Folder    string   `json:"folderName,omitempty"`
+	CoEditing bool     `json:"coediting"`
 }

@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/Songmu/kibela/client"
@@ -187,18 +190,23 @@ func (ki *kibela) pushNote(n *note) error {
 			}
 		}
 	}
-	updatePayload := struct {
-		ID       ID         `json:"id"`
-		BaseNote *noteInput `json:"baseNote"`
-		NewNote  *noteInput `json:"newNote"`
-	}{
-		ID:       n.ID,
-		BaseNote: remoteNote.toNoteInput(),
-		NewNote:  n.toNoteInput(),
+	baseNote := remoteNote.toNoteInput()
+	newNote := n.toNoteInput()
+	if reflect.DeepEqual(*baseNote, *newNote) {
+		n.UpdatedAt = remoteNote.UpdatedAt
+		return nil
 	}
 	data, err := ki.cli.Do(&client.Payload{
-		Query:     updateNoteMutation,
-		Variables: updatePayload,
+		Query: updateNoteMutation,
+		Variables: struct {
+			ID       ID         `json:"id"`
+			BaseNote *noteInput `json:"baseNote"`
+			NewNote  *noteInput `json:"newNote"`
+		}{
+			ID:       n.ID,
+			BaseNote: baseNote,
+			NewNote:  newNote,
+		},
 	})
 	if err != nil {
 		return xerrors.Errorf("failed to pushNote while accessing remote: %w", err)
@@ -216,13 +224,14 @@ func (ki *kibela) pushNote(n *note) error {
 }
 
 func (n *note) toNoteInput() *noteInput {
-	groupIDs := make([]ID, len(n.Groups))
+	groupIDs := make([]string, len(n.Groups))
 	for i, g := range n.Groups {
-		groupIDs[i] = g.ID
+		groupIDs[i] = string(g.ID)
 	}
+	sort.Strings(groupIDs)
 	return &noteInput{
 		Title:     n.Title,
-		Content:   n.Content,
+		Content:   strings.TrimSpace(n.Content) + "\n",
 		GroupIDs:  groupIDs,
 		Folder:    n.Folder,
 		CoEditing: n.CoEditing,
