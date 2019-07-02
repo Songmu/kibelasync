@@ -2,4 +2,4 @@
 !.gitignore
 !.travis.yml
 dist/
-./notes/
+notes/
