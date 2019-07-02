@@ -193,6 +193,7 @@ func (ki *kibela) pushNote(n *note) error {
 	baseNote := remoteNote.toNoteInput()
 	newNote := n.toNoteInput()
 	if reflect.DeepEqual(*baseNote, *newNote) {
+		// no update defferences
 		n.UpdatedAt = remoteNote.UpdatedAt
 		return nil
 	}
