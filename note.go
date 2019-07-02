@@ -125,6 +125,7 @@ func (ki *kibela) getNote(id ID) (*note, error) {
 	if err := json.Unmarshal(gResp, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
+	res.Note.ID = id
 	return res.Note, nil
 }
 
@@ -153,11 +154,77 @@ func (ki *kibela) pullNotes(dir string) error {
 			if err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}
-			allNote.ID = n.ID
 			if err := allNote.toMD(dir).save(); err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}
 		}
 	}
 	return nil
+}
+
+func (ki *kibela) pushNote(n *note) error {
+	remoteNote, err := ki.getNote(n.ID)
+	if err != nil {
+		return xerrors.Errorf("failed to pushNote: %w", err)
+	}
+	groupMap := make(map[string]ID)
+	for _, g := range remoteNote.Groups {
+		groupMap[g.Name] = g.ID
+	}
+
+	// fill group IDs
+	for _, g := range n.Groups {
+		if string(g.ID) == "" {
+			id, ok := groupMap[g.Name]
+			if ok {
+				g.ID = id
+			} else {
+				id, err := ki.fetchGroupID(g.Name)
+				if err != nil {
+					return xerrors.Errorf("failed to fetch group name: %q, %w", g.Name, err)
+				}
+				g.ID = id
+			}
+		}
+	}
+	updatePayload := struct {
+		ID       ID         `json:"id"`
+		BaseNote *noteInput `json:"baseNote"`
+		NewNote  *noteInput `json:"newNote"`
+	}{
+		ID:       n.ID,
+		BaseNote: remoteNote.toNoteInput(),
+		NewNote:  n.toNoteInput(),
+	}
+	data, err := ki.cli.Do(&client.Payload{
+		Query:     updateNoteMutation,
+		Variables: updatePayload,
+	})
+	if err != nil {
+		return xerrors.Errorf("failed to pushNote while accessing remote: %w", err)
+	}
+	var res struct {
+		Note struct {
+			UpdatedAt Time `json:"updatedAt"`
+		} `json:"note"`
+	}
+	if err := json.Unmarshal(data, &res); err != nil {
+		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)
+	}
+	n.UpdatedAt = res.Note.UpdatedAt
+	return nil
+}
+
+func (n *note) toNoteInput() *noteInput {
+	groupIDs := make([]ID, len(n.Groups))
+	for i, g := range n.Groups {
+		groupIDs[i] = g.ID
+	}
+	return &noteInput{
+		Title:     n.Title,
+		Content:   n.Content,
+		GroupIDs:  groupIDs,
+		Folder:    n.Folder,
+		CoEditing: n.CoEditing,
+	}
 }

@@ -104,8 +104,7 @@ func listGroupQuery(num int) string {
 }`, num)
 }
 
-func updateNoteMutation() string {
-	return `mutation($id: ID!, $baseNote: NoteInput!, $newNote: NoteInput!) {
+const updateNoteMutation = `mutation($id: ID!, $baseNote: NoteInput!, $newNote: NoteInput!) {
   updateNote(input: {
     id: $id,
     baseNote: $baseNote,
@@ -117,7 +116,6 @@ func updateNoteMutation() string {
     }
   }
 }`
-}
 
 type noteInput struct {
 	Title     string `json:"title"`
