@@ -38,7 +38,7 @@ type kibela struct {
 }
 
 func newKibela() (*kibela, error) {
-	cli, err := client.New()
+	cli, err := client.New(version)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to newKibela: %w", err)
 	}

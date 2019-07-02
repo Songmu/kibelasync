@@ -32,7 +32,7 @@ func (ki *kibela) getGroupCount() (int, error) {
 			TotalCount int `json:"totalCount"`
 		} `json:"groups"`
 	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+	if err := json.Unmarshal(gResp, &res); err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Groups.TotalCount, nil
@@ -71,7 +71,7 @@ func (ki *kibela) getGroups() ([]*group, error) {
 			Nodes []*group `json:"nodes"`
 		} `json:"groups"`
 	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+	if err := json.Unmarshal(gResp, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Groups.Nodes, nil

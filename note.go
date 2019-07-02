@@ -89,7 +89,7 @@ func (ki *kibela) getNotesCount() (int, error) {
 			TotalCount int `json:"totalCount"`
 		} `json:"notes"`
 	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+	if err := json.Unmarshal(gResp, &res); err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.TotalCount, nil
@@ -110,7 +110,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 			Nodes []*note `json:"nodes"`
 		} `json:"notes"`
 	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+	if err := json.Unmarshal(gResp, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.Nodes, nil
@@ -125,7 +125,7 @@ func (ki *kibela) getNote(id ID) (*note, error) {
 	var res struct {
 		Note *note `json:"note"`
 	}
-	if err := json.Unmarshal(gResp.Data, &res); err != nil {
+	if err := json.Unmarshal(gResp, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	return res.Note, nil

@@ -11,13 +11,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const endpointBase = "https://%s.kibe.la/api/v1"
-
-var defaultUserAgent string
-
-func init() {
-	defaultUserAgent = "Songmu-kibela/0.0.0 (+https://github.com/Songmu/kibela)"
-}
+const (
+	endpointBase  = "https://%s.kibe.la/api/v1"
+	userAgentBase = "Songmu-kibela/%s (+https://github.com/Songmu/kibela)"
+)
 
 type doer interface {
 	Do(*http.Request) (*http.Response, error)
@@ -29,7 +26,7 @@ type Client struct {
 	cli             doer
 }
 
-func New() (*Client, error) {
+func New(ver string) (*Client, error) {
 	cli := &Client{token: os.Getenv("KIBELA_TOKEN")}
 	if cli.token == "" {
 		return nil, fmt.Errorf("set token by KIBELA_TOKEN env value")
@@ -40,11 +37,11 @@ func New() (*Client, error) {
 	}
 	cli.endpoint = fmt.Sprintf(endpointBase, team)
 	cli.cli = &http.Client{Transport: newRateLimitRoundTripper()}
-	cli.userAgent = defaultUserAgent
+	cli.userAgent = fmt.Sprintf(userAgentBase, ver)
 	return cli, nil
 }
 
-func (cli *Client) Do(pa *Payload) (*Response, error) {
+func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 	body := bytes.Buffer{}
 	if err := json.NewEncoder(&body).Encode(pa); err != nil {
 		return nil, err
@@ -73,14 +70,15 @@ func (cli *Client) Do(pa *Payload) (*Response, error) {
 		}
 		return nil, fmt.Errorf("API response with code: %d, response: %s", resp.StatusCode, string(bs))
 	}
-	var gResp Response
+	var gResp response
 	if err := json.NewDecoder(resp.Body).Decode(&gResp); err != nil {
 		return nil, err
 	}
-	if gResp.Data == nil {
-		return nil, gResp.Errors
+	var resErr error
+	if len(gResp.Errors) > 0 {
+		resErr = gResp.Errors
 	}
-	return &gResp, nil
+	return gResp.Data, resErr
 }
 
 type Payload struct {
@@ -88,7 +86,7 @@ type Payload struct {
 	Variables interface{} `json:"variables,omitempty"`
 }
 
-type Response struct {
+type response struct {
 	Errors Errors          `json:"message,omitempty"`
 	Data   json.RawMessage `json:"data,omitempty"`
 }
