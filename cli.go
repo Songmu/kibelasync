@@ -43,8 +43,9 @@ func printVersion(out io.Writer) error {
 }
 
 var dispatch = map[string]runner{
-	"pull": &cmdPull{},
-	"push": &cmdPush{},
+	"publish": &cmdPublish{},
+	"pull":    &cmdPull{},
+	"push":    &cmdPush{},
 }
 
 type runner interface {

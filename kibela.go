@@ -24,6 +24,7 @@ func (ki *kibela) setGroups() error {
 	if ki.groups != nil {
 		return nil
 	}
+	// XXX race
 	groups, err := ki.getGroups()
 	if err != nil {
 		return xerrors.Errorf("failed to ki.setGroups: %w", err)

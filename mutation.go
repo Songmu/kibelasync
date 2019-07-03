@@ -21,14 +21,17 @@ const updateNoteMutation = `mutation($id: ID!, $baseNote: NoteInput!, $newNote: 
   }
 }`
 
-const createNoteMutation = `mutation($input: CreateNoteInput!) {
-  createNote(input: $newNote) {
+const createNoteMutation = `mutation ($input: CreateNoteInput!) {
+  createNote(input: $input) {
     note {
-	  id
-	  updatedAt
-	  author {
-	    account
-	  }
-	}
+      id
+      updatedAt
+      groups {
+        name
+      }
+      author {
+        account
+      }
+    }
   }
 }`

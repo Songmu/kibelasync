@@ -256,9 +256,7 @@ func (ki *kibela) pushNote(n *note) error {
 		return xerrors.Errorf("failed to pushNote while accessing remote: %w", err)
 	}
 	var res struct {
-		Note struct {
-			UpdatedAt Time `json:"updatedAt"`
-		} `json:"note"`
+		Note *note `json:"note"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)

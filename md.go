@@ -1,15 +1,18 @@
 package kibela
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Songmu/kibela/client"
 	"github.com/ghodss/yaml"
 	"golang.org/x/xerrors"
 )
@@ -158,4 +161,68 @@ func (ki *kibela) pushMD(m *md) error {
 		return xerrors.Errorf("failed to pushMD: %w", err)
 	}
 	return os.Chtimes(m.filepath, n.UpdatedAt.Time, n.UpdatedAt.Time)
+}
+
+func (ki *kibela) publishMD(m *md, save bool) error {
+	if m.FrontMatter == nil {
+		m.FrontMatter = &meta{}
+	}
+	groupIDs := make([]string, len(m.FrontMatter.Groups))
+	for i, g := range m.FrontMatter.Groups {
+		id, err := ki.fetchGroupID(g)
+		if err != nil {
+			return xerrors.Errorf("failed to publishMD: %w", err)
+		}
+		groupIDs[i] = string(id)
+	}
+	sort.Strings(groupIDs)
+	input := &noteInput{
+		Title:     m.FrontMatter.Title,
+		Content:   m.Content,
+		Folder:    m.FrontMatter.Folder,
+		CoEditing: m.FrontMatter.CoEditing,
+		GroupIDs:  groupIDs,
+	}
+	data, err := ki.cli.Do(&client.Payload{
+		Query: createNoteMutation,
+		Variables: struct {
+			Input *noteInput `json:"input"`
+		}{
+			Input: input,
+		},
+	})
+	if err != nil {
+		return xerrors.Errorf("failed to publishNote while accessing remote: %w", err)
+	}
+	var res struct {
+		CreateNote struct {
+			Note *note `json:"note"`
+		} `json:"createNote"`
+	}
+	if err := json.Unmarshal(data, &res); err != nil {
+		return xerrors.Errorf("failed to ki.publishNote while unmarshaling response: %w", err)
+	}
+	if !save {
+		return nil
+	}
+	n := res.CreateNote.Note
+	groups := make([]string, len(n.Groups))
+	for i, g := range n.Groups {
+		groups[i] = g.Name
+	}
+	m.FrontMatter.Groups = groups
+	m.ID = n.ID
+	m.UpdatedAt = n.UpdatedAt.Time
+	m.FrontMatter.Author = n.Author.Account
+	origFilePath := m.filepath
+	m.filepath = ""
+	if err := m.save(); err != nil {
+		return xerrors.Errorf("failed to publishMD. publish succeeded but failed to store file: %w", err)
+	}
+	if origFilePath != "" {
+		if err := os.RemoveAll(origFilePath); err != nil {
+			return xerrors.Errorf("failed to publishMD while cleanup orginal MD: %w", err)
+		}
+	}
+	return nil
 }
