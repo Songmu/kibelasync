@@ -115,20 +115,25 @@ func (m *md) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
 	if err != nil {
 		return xerrors.Errorf("failed to load md: %w", err)
 	}
+	if m.FrontMatter == nil {
+		m.FrontMatter = &meta{}
+	}
 	contents := strings.SplitN(string(b), "---\n", 3)
 	if len(contents) == 3 && contents[0] == "" {
-		var me meta
-		if err := yaml.Unmarshal([]byte(contents[1]), &me); err != nil {
+		if err := yaml.Unmarshal([]byte(contents[1]), m.FrontMatter); err != nil {
 			if forceFrontmatter {
 				return xerrors.Errorf("invalid frontmatter: %w", err)
 			}
-			m.Content = string(b)
+			m.FrontMatter.Title, m.Content = detectTitle(string(b))
 		} else {
-			m.FrontMatter = &me
-			m.Content = strings.TrimSpace(contents[2]) + "\n"
+			if m.FrontMatter.Title == "" {
+				m.FrontMatter.Title, m.Content = detectTitle(contents[2])
+			} else {
+				m.Content = strings.TrimSpace(contents[2]) + "\n"
+			}
 		}
 	} else if !forceFrontmatter {
-		m.Content = string(b)
+		m.FrontMatter.Title, m.Content = detectTitle(string(b))
 	} else {
 		return fmt.Errorf("invalid contents of md: %s", string(b))
 	}

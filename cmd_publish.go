@@ -41,13 +41,9 @@ func (cp *cmdPublish) run(argv []string, outStream io.Writer, errStream io.Write
 	}
 	m.loadContentFromReader(r, false)
 	if *title != "" {
-		if m.FrontMatter == nil {
-			m.FrontMatter = &meta{}
-		}
 		m.FrontMatter.Title = *title
 	}
 	if m.FrontMatter == nil || m.FrontMatter.Title == "" {
-		// XXX detect title from markdown?
 		return xerrors.New("title required")
 	}
 	return ki.publishMD(m, *save)
