@@ -107,3 +107,46 @@ func TestLoadMD(t *testing.T) {
 		t.Errorf("got: %+v\nexpect: %+v", *m, *expect)
 	}
 }
+
+func TestDetectTitle(t *testing.T) {
+	testCases := []struct {
+		Name, Input, Title, Content string
+	}{
+		{
+			Name:    "hashed title",
+			Input:   "# AAABBBB\nHello",
+			Title:   "AAABBBB",
+			Content: "Hello\n",
+		},
+		{
+			Name:    "underlined title",
+			Input:   "AAABBBB\n==\n\nHello",
+			Title:   "AAABBBB",
+			Content: "Hello\n",
+		},
+		{
+			Name:    "underlined title has priority",
+			Input:   "\n# AAABBBB\n===\n\nHello",
+			Title:   "# AAABBBB",
+			Content: "Hello\n",
+		},
+		{
+			Name:    "no title",
+			Input:   "Hello",
+			Title:   "",
+			Content: "Hello\n",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			title, content := detectTitle(tc.Input)
+			if title != tc.Title {
+				t.Errorf("title unmatched. out: %s, expect: %s", title, tc.Title)
+			}
+			if content != tc.Content {
+				t.Errorf("content unmatched. out: %s, expect: %s", content, tc.Content)
+			}
+		})
+	}
+}

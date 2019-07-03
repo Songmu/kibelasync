@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -132,6 +133,28 @@ func (m *md) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
 		return fmt.Errorf("invalid contents of md: %s", string(b))
 	}
 	return nil
+}
+
+var detectTitleReg = regexp.MustCompile(`\A` +
+	`(?:` +
+	`([^\r\n]+)\r?\n={2,}` + // underlined title: ex. "Title Content\n====="
+	`|` +
+	`#\s+([^\r\n]+)` + // hashed title: ex. "# Title Content"
+	`)` +
+	`\r?\n`)
+
+func detectTitle(rawContent string) (title, content string) {
+	rawContent = strings.TrimSpace(rawContent) + "\n"
+	m := detectTitleReg.FindStringSubmatch(rawContent)
+	if len(m) < 3 {
+		return "", rawContent
+	}
+	title = m[1]
+	if title == "" {
+		title = m[2]
+	}
+	content = strings.TrimSpace(strings.TrimPrefix(rawContent, m[0])) + "\n"
+	return title, content
 }
 
 func (m *md) toNote() *note {
