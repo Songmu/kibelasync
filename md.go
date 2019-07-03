@@ -2,6 +2,7 @@ package kibela
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -90,29 +91,44 @@ func loadMD(fpath string) (*md, error) {
 		return nil, xerrors.Errorf("failed to load md: %s, %w", fpath, err)
 	}
 	defer f.Close()
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return nil, xerrors.Errorf("failed to load md: %s, %w", fpath, err)
-	}
-	contents := strings.SplitN(string(b), "---\n", 3)
-	if len(contents) != 3 || contents[0] != "" {
-		return nil, fmt.Errorf("invalid contents of md: %s", string(b))
-	}
-	var me meta
-	if err := yaml.Unmarshal([]byte(contents[1]), &me); err != nil {
-		return nil, xerrors.Errorf("invalid frontmatter: %w", err)
-	}
 	fi, err := f.Stat()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to load md: %w", err)
 	}
-	return &md{
-		ID:          newID(fmt.Sprintf("Blog/%s", mdNumStr)),
-		FrontMatter: &me,
-		Content:     strings.TrimSpace(contents[2]) + "\n",
-		UpdatedAt:   fi.ModTime(),
-		filepath:    fpath,
-	}, nil
+	m := &md{
+		ID:        newID(fmt.Sprintf("Blog/%s", mdNumStr)),
+		UpdatedAt: fi.ModTime(),
+		filepath:  fpath,
+	}
+	if err := m.loadContentFromReader(f, true); err != nil {
+		return nil, xerrors.Errorf("failed to loadMD: %w", err)
+	}
+	return m, nil
+}
+
+func (m *md) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return xerrors.Errorf("failed to load md: %w", err)
+	}
+	contents := strings.SplitN(string(b), "---\n", 3)
+	if len(contents) == 3 && contents[0] == "" {
+		var me meta
+		if err := yaml.Unmarshal([]byte(contents[1]), &me); err != nil {
+			if forceFrontmatter {
+				return xerrors.Errorf("invalid frontmatter: %w", err)
+			}
+			m.Content = string(b)
+		} else {
+			m.FrontMatter = &me
+			m.Content = strings.TrimSpace(contents[2]) + "\n"
+		}
+	} else if !forceFrontmatter {
+		m.Content = string(b)
+	} else {
+		return fmt.Errorf("invalid contents of md: %s", string(b))
+	}
+	return nil
 }
 
 func (m *md) toNote() *note {
