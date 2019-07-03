@@ -25,7 +25,7 @@ type md struct {
 type meta struct {
 	Title     string   `json:"title"`
 	CoEditing bool     `json:"coediting"`
-	Folder    string   `json:"folder"`
+	Folder    string   `json:"folder,omitempty"`
 	Groups    []string `json:"groups"`
 	Author    string   `json:"author"`
 }
