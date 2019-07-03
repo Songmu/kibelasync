@@ -28,9 +28,9 @@ type note struct {
 }
 
 func (n *note) toMD(dir string) *md {
-	gps := make([]string, len(n.Groups))
+	groups := make([]string, len(n.Groups))
 	for i, g := range n.Groups {
-		gps[i] = g.Name
+		groups[i] = g.Name
 	}
 	return &md{
 		ID:        n.ID,
@@ -41,14 +41,14 @@ func (n *note) toMD(dir string) *md {
 			Title:     n.Title,
 			CoEditing: n.CoEditing,
 			Folder:    n.Folder,
-			Groups:    gps,
+			Groups:    groups,
 			Author:    n.Author.Account,
 		},
 	}
 }
 
 func (ki *kibela) getNotesCount() (int, error) {
-	gResp, err := ki.cli.Do(&client.Payload{Query: totalCountQuery})
+	data, err := ki.cli.Do(&client.Payload{Query: totalCountQuery})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
@@ -57,7 +57,7 @@ func (ki *kibela) getNotesCount() (int, error) {
 			TotalCount int `json:"totalCount"`
 		} `json:"notes"`
 	}
-	if err := json.Unmarshal(gResp, &res); err != nil {
+	if err := json.Unmarshal(data, &res); err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.TotalCount, nil
@@ -112,7 +112,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 		}
 		return notes, nil
 	}
-	gResp, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num)})
+	data, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNoteIDs: %w", err)
 	}
@@ -121,7 +121,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 			Nodes []*note `json:"nodes"`
 		} `json:"notes"`
 	}
-	if err := json.Unmarshal(gResp, &res); err != nil {
+	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Notes.Nodes, nil
