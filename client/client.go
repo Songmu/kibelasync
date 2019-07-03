@@ -16,14 +16,14 @@ const (
 	userAgentBase = "Songmu-kibela/%s (+https://github.com/Songmu/kibela)"
 )
 
-type doer interface {
+type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
 type Client struct {
 	token, endpoint string
 	userAgent       string
-	cli             doer
+	cli             Doer
 }
 
 func New(ver string) (*Client, error) {
