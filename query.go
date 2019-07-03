@@ -2,7 +2,6 @@ package kibela
 
 import "fmt"
 
-// .data/notes.totalCount
 const totalCountQuery = `{
   notes() {
     totalCount
@@ -21,7 +20,6 @@ func listNoteQuery(num int) string {
 }`, num)
 }
 
-// .data.note
 func getNoteQuery(id ID) string {
 	return fmt.Sprintf(`{
   note(id: "%s") {
@@ -106,25 +104,4 @@ func listGroupQuery(num int) string {
     }
   }
 }`, num)
-}
-
-const updateNoteMutation = `mutation($id: ID!, $baseNote: NoteInput!, $newNote: NoteInput!) {
-  updateNote(input: {
-    id: $id,
-    baseNote: $baseNote,
-    newNote: $newNote,
-    draft: false })
-  {
-    note {
-      updatedAt
-    }
-  }
-}`
-
-type noteInput struct {
-	Title     string   `json:"title"`
-	Content   string   `json:"content"`
-	GroupIDs  []string `json:"groupIds"`
-	Folder    string   `json:"folderName,omitempty"`
-	CoEditing bool     `json:"coediting"`
 }
