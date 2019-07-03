@@ -256,12 +256,14 @@ func (ki *kibela) pushNote(n *note) error {
 		return xerrors.Errorf("failed to pushNote while accessing remote: %w", err)
 	}
 	var res struct {
-		Note *note `json:"note"`
+		UpdateNote struct {
+			Note *note `json:"note"`
+		} `json:"updateNote"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)
 	}
-	n.UpdatedAt = res.Note.UpdatedAt
+	n.UpdatedAt = res.UpdateNote.Note.UpdatedAt
 	return nil
 }
 
