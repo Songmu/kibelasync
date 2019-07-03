@@ -28,25 +28,6 @@ func (ki *kibela) getGroupCount() (int, error) {
 	return res.Groups.TotalCount, nil
 }
 
-/*
-{
-  "data": {
-    "groups": {
-      "nodes": [
-        {
-          "id": "R3JvdXAvMQ",
-          "name": "Home"
-        },
-        {
-          "id": "R3JvdXAvMg",
-          "name": "Test"
-        }
-      ]
-    }
-  }
-}
-*/
-// OK
 func (ki *kibela) getGroups() ([]*group, error) {
 	num, err := ki.getGroupCount()
 	if err != nil {
