@@ -11,7 +11,8 @@ import (
 
 type ID string
 
-func newID(str string) ID {
+func newID(typ string, num int) ID {
+	str := fmt.Sprintf("%s/%d", typ, num)
 	return ID(base64.RawStdEncoding.EncodeToString([]byte(str)))
 }
 

@@ -85,10 +85,10 @@ func loadMD(fpath string) (*md, error) {
 	if stuffs[1] != "md" {
 		return nil, fmt.Errorf("invalid filename (must be [0-9]+.md): %s", fname)
 	}
-	if _, err := strconv.Atoi(stuffs[0]); err != nil {
+	num, err := strconv.Atoi(stuffs[0])
+	if err != nil {
 		return nil, fmt.Errorf("invalid filename (must be [0-9]+.md): %s", fname)
 	}
-	mdNumStr := stuffs[0]
 
 	f, err := os.Open(fpath)
 	if err != nil {
@@ -100,7 +100,7 @@ func loadMD(fpath string) (*md, error) {
 		return nil, xerrors.Errorf("failed to load md: %w", err)
 	}
 	m := &md{
-		ID:        newID(fmt.Sprintf("Blog/%s", mdNumStr)),
+		ID:        newID("Blog", num),
 		UpdatedAt: fi.ModTime(),
 		filepath:  fpath,
 	}
