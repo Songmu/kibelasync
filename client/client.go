@@ -90,3 +90,8 @@ type response struct {
 	Errors Errors          `json:"message,omitempty"`
 	Data   json.RawMessage `json:"data,omitempty"`
 }
+
+// Test for create test client for using testing only
+func Test(cli Doer) *Client {
+	return &Client{cli: cli}
+}
