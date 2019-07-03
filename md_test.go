@@ -231,6 +231,83 @@ func TestKibela_publishMD(t *testing.T) {
 	}
 }
 
+func TestKibela_pushMD(t *testing.T) {
+	expectedID := newID("Blog", 707)
+	expectUpdatedAt := "2019-06-23T16:54:09.447+09:00"
+	ti, err := time.Parse(rfc3339Milli, expectUpdatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ki := testKibela(newClient([]string{`{
+  "data": {
+    "note": {
+      "title": "APIテストpublic",
+      "content": "コンテント!\nコンテント",
+      "coediting": true,
+      "folderName": "testtop/testsub1",
+      "groups": [
+        {
+          "name": "Home",
+          "id": "R3JvdXAvMQ"
+        }
+      ],
+      "author": {
+        "account": "Songmu"
+      }
+    }
+  }
+}`, fmt.Sprintf(`{
+  "data": {
+    "updateNote": {
+      "note": {
+        "updatedAt": "%s"
+      }
+    }
+  }
+}`, expectUpdatedAt)}))
+
+	tmpdir, err := ioutil.TempDir("", "kibela-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+
+	baseMD := "testdata/notes/707.md"
+	filePath := filepath.Join(tmpdir, "707.md")
+	if err := cp(baseMD, filePath); err != nil {
+		t.Fatal(err)
+	}
+	m, err := loadMD(filePath)
+	if err != nil {
+		t.Errorf("error should be nil, but: %s", err)
+	}
+	if m.ID != expectedID {
+		t.Errorf("m.ID = %s, expect: %s", string(m.ID), string(expectedID))
+	}
+	if err := ki.pushMD(m); err != nil {
+		t.Errorf("error should be nil, but: %s", err)
+	}
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		t.Errorf("error should be nil, but: %s", err)
+	}
+	if !fi.ModTime().Equal(ti) {
+		t.Errorf("fi.ModTime() = %q, expext: %q", fi.ModTime(), ti)
+	}
+
+	expect, err := ioutil.ReadFile(baseMD)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(expect) != string(out) {
+		t.Errorf("\n   out:\n%s\nexpect:\n%s", string(out), string(expect))
+	}
+}
+
 func cp(src, dst string) (err error) {
 	s, err := os.Open(src)
 	if err != nil {

@@ -129,14 +129,14 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 
 // OK
 func (ki *kibela) getNote(id ID) (*note, error) {
-	gResp, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
+	data, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	var res struct {
 		Note *note `json:"note"`
 	}
-	if err := json.Unmarshal(gResp, &res); err != nil {
+	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	res.Note.ID = id
