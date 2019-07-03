@@ -14,28 +14,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-/*
-   {
-     "id": "QmxvZy8zNjY",
-     "title": "APIテストpublic",
-     "content": "コンテント!\nコンテント",
-     "coediting": true,
-     "folderName": "testtop/testsub1",
-     "groups": [
-       {
-         "name": "Home",
-         "id": "R3JvdXAvMQ"
-       }
-     ],
-     "author": {
-       "account": "Songmu"
-     },
-     "createdAt": "2019-06-23T16:54:09.447Z",
-     "publishedAt": "2019-06-23T16:54:09.444Z",
-     "contentUpdatedAt": "2019-06-23T16:54:09.445Z",
-     "updatedAt": "2019-06-23T17:22:38.496Z"
-   },
-*/
 type note struct {
 	ID        `json:"id"`
 	Title     string   `json:"title"`
@@ -69,16 +47,6 @@ func (n *note) toMD(dir string) *md {
 	}
 }
 
-/*
-{
-  "data": {
-    "notes": {
-      "totalCount": 353
-    }
-  }
-}
-*/
-// OK
 func (ki *kibela) getNotesCount() (int, error) {
 	gResp, err := ki.cli.Do(&client.Payload{Query: totalCountQuery})
 	if err != nil {
