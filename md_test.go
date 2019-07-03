@@ -1,34 +1,15 @@
 package kibela
 
 import (
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 )
-
-/*
-   {
-     "id": "QmxvZy8zNjY",
-     "title": "APIテストpublic",
-     "content": "コンテント!\nコンテント",
-     "coediting": true,
-     "folderName": "testtop/testsub1",
-     "groups": [
-       {
-         "name": "Home",
-         "id": "R3JvdXAvMQ"
-       }
-     ],
-     "author": {
-       "account": "Songmu"
-     },
-     "createdAt": "2019-06-23T16:54:09.447Z",
-     "publishedAt": "2019-06-23T16:54:09.444Z",
-     "contentUpdatedAt": "2019-06-23T16:54:09.445Z",
-     "updatedAt": "2019-06-23T17:22:38.496Z"
-   },
-*/
 
 func newTestMD() *md {
 	return &md{
@@ -149,4 +130,123 @@ func TestDetectTitle(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestKibela_publishMD(t *testing.T) {
+	expectedID := newID("Blog", 707)
+	expectUpdatedAt := "2019-06-23T16:54:09.447+09:00"
+	ti, err := time.Parse(rfc3339Milli, expectUpdatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ki := testKibela(newClient([]string{`{
+  "data": {
+    "groups": {
+      "totalCount": 2
+    }
+  }
+}`, `{
+  "data": {
+    "groups": {
+      "nodes": [
+        {
+          "id": "R3JvdXAvMQ",
+          "name": "Home"
+        },
+        {
+          "id": "R3JvdXAvMg",
+          "name": "Test"
+        }
+      ]
+    }
+  }
+}`, fmt.Sprintf(`{
+  "data": {
+    "createNote": {
+      "note": {
+        "id": "%s",
+        "updatedAt": "%s",
+        "groups": [{
+          "name": "Home"
+        }],
+        "author": {
+          "account": "Songmu"
+        }
+      }
+    }
+  }
+}`, string(expectedID), expectUpdatedAt)}))
+
+	tmpdir, err := ioutil.TempDir("", "kibela-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+
+	baseMD := "testdata/notes/707.md"
+	draftPath := filepath.Join(tmpdir, "draft.md")
+	if err := cp(baseMD, draftPath); err != nil {
+		t.Fatal(err)
+	}
+	r, err := os.Open(draftPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	m := &md{
+		dir:      tmpdir,
+		filepath: draftPath,
+	}
+	m.loadContentFromReader(r, false)
+	err = ki.publishMD(m, true)
+	if err != nil {
+		t.Errorf("error shoud be nil, but: %s", err)
+	}
+	_, err = os.Stat(draftPath)
+	if !os.IsNotExist(err) {
+		t.Errorf("error should be not exists error, but %s", err)
+	}
+	notePath := filepath.Join(tmpdir, "707.md")
+	if notePath != m.filepath {
+		t.Errorf("m.filepath = %q, expect: %q", m.filepath, notePath)
+	}
+	fi, err := os.Stat(notePath)
+	if err != nil {
+		t.Errorf("error should be nil, but: %s", err)
+	}
+	if !fi.ModTime().Equal(ti) {
+		t.Errorf("fi.ModTime() = %q, expext: %q", fi.ModTime(), ti)
+	}
+
+	expect, err := ioutil.ReadFile(baseMD)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := ioutil.ReadFile(notePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(expect) != string(out) {
+		t.Errorf("\n   out:\n%s\nexpect:\n%s", string(out), string(expect))
+	}
+}
+
+func cp(src, dst string) (err error) {
+	s, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	d, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		e := d.Close()
+		if err != nil {
+			err = e
+		}
+	}()
+	_, err = io.Copy(d, s)
+	return err
 }

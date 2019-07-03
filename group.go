@@ -33,7 +33,7 @@ func (ki *kibela) getGroups() ([]*group, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("failed to getGroups: %w", err)
 	}
-	gResp, err := ki.cli.Do(&client.Payload{Query: listGroupQuery(num)})
+	data, err := ki.cli.Do(&client.Payload{Query: listGroupQuery(num)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
 	}
@@ -42,7 +42,7 @@ func (ki *kibela) getGroups() ([]*group, error) {
 			Nodes []*group `json:"nodes"`
 		} `json:"groups"`
 	}
-	if err := json.Unmarshal(gResp, &res); err != nil {
+	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
 	return res.Groups.Nodes, nil

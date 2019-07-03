@@ -192,9 +192,6 @@ func (ki *kibela) pushMD(m *md) error {
 }
 
 func (ki *kibela) publishMD(m *md, save bool) error {
-	if m.FrontMatter == nil {
-		m.FrontMatter = &meta{}
-	}
 	groupIDs := make([]string, len(m.FrontMatter.Groups))
 	for i, g := range m.FrontMatter.Groups {
 		id, err := ki.fetchGroupID(g)
@@ -204,19 +201,18 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 		groupIDs[i] = string(id)
 	}
 	sort.Strings(groupIDs)
-	input := &noteInput{
-		Title:     m.FrontMatter.Title,
-		Content:   m.Content,
-		Folder:    m.FrontMatter.Folder,
-		CoEditing: m.FrontMatter.CoEditing,
-		GroupIDs:  groupIDs,
-	}
 	data, err := ki.cli.Do(&client.Payload{
 		Query: createNoteMutation,
 		Variables: struct {
 			Input *noteInput `json:"input"`
 		}{
-			Input: input,
+			Input: &noteInput{
+				Title:     m.FrontMatter.Title,
+				Content:   m.Content,
+				Folder:    m.FrontMatter.Folder,
+				CoEditing: m.FrontMatter.CoEditing,
+				GroupIDs:  groupIDs,
+			},
 		},
 	})
 	if err != nil {
