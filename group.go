@@ -12,16 +12,6 @@ type group struct {
 	Name string `json:"name"`
 }
 
-/*
-{
-  "data": {
-    "groups": {
-      "totalCount": 353
-    }
-  }
-}
-*/
-// OK
 func (ki *kibela) getGroupCount() (int, error) {
 	gResp, err := ki.cli.Do(&client.Payload{Query: totalGroupCountQuery})
 	if err != nil {
