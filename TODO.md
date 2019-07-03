@@ -1,0 +1,4 @@
+- How to specify directory. current: './notes' 
+- log output
+- configuration file
+  - but keep configration free
