@@ -16,7 +16,7 @@ func (cp *cmdPublish) run(argv []string, outStream io.Writer, errStream io.Write
 	fs.SetOutput(errStream)
 	var (
 		title = fs.String("title", "", "title of the note")
-		save  = fs.Bool("save", true, "save file after published the note")
+		save  = fs.Bool("save", false, "save file after published the note")
 	)
 	if err := fs.Parse(argv); err != nil {
 		return err
