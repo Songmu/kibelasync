@@ -1,9 +1,7 @@
 VERSION = $(shell godzil show-version)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-s -w -X github.com/Songmu/kibela.revision=$(CURRENT_REVISION)"
-ifdef update
-  u=-u
-endif
+u := $(if $(update),-u)
 
 export GO111MODULE=on
 
@@ -41,7 +39,7 @@ build: deps
 
 .PHONY: install
 install: build
-	mv kibela "$(shell go env GOPATH)/bin/"
+	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/kibela
 
 .PHONY: bump
 bump: devel-deps
