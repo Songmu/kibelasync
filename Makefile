@@ -38,7 +38,7 @@ build: deps
 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/kibela
 
 .PHONY: install
-install: build
+install: deps
 	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/kibela
 
 .PHONY: bump
