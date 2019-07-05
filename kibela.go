@@ -30,7 +30,7 @@ func (ki *kibela) fetchGroups() (map[string]ID, error) {
 			return
 		}
 		groups, err := ki.getGroups()
-		if inErr != nil {
+		if err != nil {
 			ki.groupsErr = xerrors.Errorf("failed to ki.setGroups: %w", err)
 			return
 		}
