@@ -42,7 +42,7 @@ func testKibela(cli *client.Client) *kibela {
 	return &kibela{cli: cli}
 }
 
-func TestKibela_setGroups(t *testing.T) {
+func TestKibela_fetchGroups(t *testing.T) {
 	ki := testKibela(newClient([]string{`{
   "data": {
     "groups": {
@@ -59,14 +59,15 @@ func TestKibela_setGroups(t *testing.T) {
     }
   }
 }`}))
-	if err := ki.setGroups(); err != nil {
+	groups, err := ki.fetchGroups()
+	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
 	expect := map[string]ID{
 		"Home": ID("R3JvdXAvMQ"),
 		"Test": ID("R3JvdXAvMg"),
 	}
-	if !reflect.DeepEqual(ki.groups, expect) {
+	if !reflect.DeepEqual(groups, expect) {
 		t.Errorf("got: %v, expect: %v", ki.groups, expect)
 	}
 }
