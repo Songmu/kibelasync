@@ -176,6 +176,8 @@ func (ki *kibela) pullNotes(dir string) error {
 			if err := allNote.toMD(dir).save(); err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}
+		} else {
+			log.Printf("skip %q (not modfied)\n", mdFilePath)
 		}
 	}
 	return nil
