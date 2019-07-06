@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/xerrors"
 )
@@ -42,6 +43,22 @@ func New(ver string) (*Client, error) {
 }
 
 func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
+	pa.Query = strings.TrimSpace(pa.Query)
+	isQuery := !strings.HasPrefix(pa.Query, "mutation")
+	if isQuery {
+		// inject cost query (these fields are seems to be no cost now)
+		q := pa.Query
+		q = strings.TrimSuffix(q, "}")
+		q += `
+  budget {
+    cost
+    consumed
+    remaining
+  }
+}`
+		pa.Query = q
+	}
+
 	body := bytes.Buffer{}
 	if err := json.NewEncoder(&body).Encode(pa); err != nil {
 		return nil, err
