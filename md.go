@@ -228,6 +228,9 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.publishNote while unmarshaling response: %w", err)
 	}
+	if res.CreateNote.Note == nil {
+		return xerrors.New("failed to publish to kibela on any reason. null createNote was returned")
+	}
 	n := res.CreateNote.Note
 	n.CoEditing = m.FrontMatter.CoEditing
 	log.Printf("published %s", ki.noteURL(n))
