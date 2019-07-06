@@ -11,6 +11,10 @@ import (
 
 type cmdPublish struct{}
 
+func (cp *cmdPublish) name() string {
+	return "publish"
+}
+
 func (cp *cmdPublish) description() string {
 	return "publish new markdown"
 }

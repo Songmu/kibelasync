@@ -22,6 +22,8 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	fs.Usage = func() {
 		fmt.Fprintf(fs.Output(), "Usage of %s:\n", nameAndVer)
 		fs.PrintDefaults()
+		fmt.Fprintf(fs.Output(), "\nCommands:\n")
+		formatCommands(fs.Output())
 	}
 
 	ver := fs.Bool("version", false, "display version")
@@ -48,13 +50,36 @@ func printVersion(out io.Writer) error {
 	return err
 }
 
-var dispatch = map[string]runner{
-	"publish": &cmdPublish{},
-	"pull":    &cmdPull{},
-	"push":    &cmdPush{},
+var (
+	subCommands = []runner{
+		&cmdPublish{},
+		&cmdPull{},
+		&cmdPush{},
+	}
+	dispatch          = make(map[string]runner, len(subCommands))
+	maxSubcommandName int
+)
+
+func init() {
+	for _, r := range subCommands {
+		n := r.name()
+		l := len(n)
+		if l > maxSubcommandName {
+			maxSubcommandName = l
+		}
+		dispatch[n] = r
+	}
+}
+
+func formatCommands(out io.Writer) {
+	format := fmt.Sprintf("    %%-%ds  %%s\n", maxSubcommandName)
+	for _, r := range subCommands {
+		fmt.Fprintf(out, format, r.name(), r.description())
+	}
 }
 
 type runner interface {
+	name() string
 	description() string
 	run(context.Context, []string, io.Writer, io.Writer) error
 }

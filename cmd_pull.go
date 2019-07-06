@@ -8,6 +8,10 @@ import (
 
 type cmdPull struct{}
 
+func (cp *cmdPull) name() string {
+	return "pull"
+}
+
 func (cp *cmdPull) description() string {
 	return "sync all markdowns"
 }

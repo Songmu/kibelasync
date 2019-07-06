@@ -10,6 +10,10 @@ import (
 
 type cmdPush struct{}
 
+func (cp *cmdPush) name() string {
+	return "push"
+}
+
 func (cp *cmdPush) description() string {
 	return "push markdown"
 }
