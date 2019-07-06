@@ -77,7 +77,7 @@ func (m *md) save() error {
 			return xerrors.Errorf("failed to set mtime to Markdown: %w", err)
 		}
 	}
-	log.Printf("Markdown saved to %q", m.filepath)
+	log.Printf("saved to %q", m.filepath)
 	return nil
 }
 
