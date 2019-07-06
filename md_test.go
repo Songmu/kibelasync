@@ -28,13 +28,11 @@ func newTestMD() *md {
 func TestMD_fullContent(t *testing.T) {
 	out := newTestMD().fullContent()
 	expect := `---
+title: たいとる！
 author: Songmu
 coediting: true
+groups: [Public, Hobby]
 folder: hoge/fuga
-groups:
-- Public
-- Hobby
-title: たいとる！
 ---
 
 Hello World!

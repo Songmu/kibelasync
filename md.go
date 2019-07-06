@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/Songmu/kibelasync/client"
-	"github.com/ghodss/yaml"
 	"golang.org/x/xerrors"
+	"gopkg.in/yaml.v2"
 )
 
 type md struct {
@@ -29,11 +29,11 @@ type md struct {
 }
 
 type meta struct {
-	Title     string   `json:"title"`
-	CoEditing bool     `json:"coediting"`
-	Folder    string   `json:"folder,omitempty"`
-	Groups    []string `json:"groups"`
-	Author    string   `json:"author"`
+	Title     string   `yaml:"title"`
+	Author    string   `yaml:"author"`
+	CoEditing bool     `yaml:"coediting"`
+	Groups    []string `yaml:"groups,flow"`
+	Folder    string   `yaml:"folder,omitempty"`
 }
 
 func (m *md) fullContent() string {
