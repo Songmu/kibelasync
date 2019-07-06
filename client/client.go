@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -25,6 +26,13 @@ type Client struct {
 	token, endpoint string
 	userAgent       string
 	cli             Doer
+	limiter         *rateLimitRoundTripper
+}
+
+type budget struct {
+	Cost      int `json:"cost,string"`
+	Consumed  int `json:"consumed,string"`
+	Remaining int `json:"remaining,string"`
 }
 
 func New(ver string) (*Client, error) {
@@ -37,7 +45,8 @@ func New(ver string) (*Client, error) {
 		return nil, fmt.Errorf("set team name by KIBELA_TEAM env value")
 	}
 	cli.endpoint = fmt.Sprintf(endpointBase, team)
-	cli.cli = &http.Client{Transport: newRateLimitRoundTripper()}
+	cli.limiter = newRateLimitRoundTripper()
+	cli.cli = &http.Client{Transport: cli.limiter}
 	cli.userAgent = fmt.Sprintf(userAgentBase, ver)
 	return cli, nil
 }
@@ -94,6 +103,17 @@ func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 	var resErr error
 	if len(gResp.Errors) > 0 {
 		resErr = gResp.Errors
+	}
+	if isQuery && cli.limiter != nil {
+		var res struct {
+			Budget *budget `json:"budget"`
+		}
+		if err := json.Unmarshal(gResp.Data, &res); err != nil {
+			log.Println("failed to retrieve budgets from response: %s", err)
+		}
+		if res.Budget != nil {
+			cli.limiter.announceRemainingCost(res.Budget.Remaining)
+		}
 	}
 	return gResp.Data, resErr
 }
