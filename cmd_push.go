@@ -1,16 +1,20 @@
 package kibela
 
 import (
+	"context"
 	"flag"
 	"io"
 
 	"golang.org/x/xerrors"
 )
 
-type cmdPush struct {
+type cmdPush struct{}
+
+func (cp *cmdPush) description() string {
+	return "push markdown"
 }
 
-func (cp *cmdPush) run(argv []string, outStream io.Writer, errStream io.Writer) error {
+func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
 	fs := flag.NewFlagSet("kibela push", flag.ContinueOnError)
 	fs.SetOutput(errStream)
 

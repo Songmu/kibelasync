@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -15,9 +16,14 @@ const cmdName = "kibela"
 func Run(argv []string, outStream, errStream io.Writer) error {
 	log.SetOutput(errStream)
 	log.SetPrefix(fmt.Sprintf("[%s] ", cmdName))
-	fs := flag.NewFlagSet(
-		fmt.Sprintf("%s (v%s rev:%s)", cmdName, version, revision), flag.ContinueOnError)
+	nameAndVer := fmt.Sprintf("%s (v%s rev:%s)", cmdName, version, revision)
+	fs := flag.NewFlagSet(nameAndVer, flag.ContinueOnError)
 	fs.SetOutput(errStream)
+	fs.Usage = func() {
+		fmt.Fprintf(fs.Output(), "Usage of %s:\n", nameAndVer)
+		fs.PrintDefaults()
+	}
+
 	ver := fs.Bool("version", false, "display version")
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -34,7 +40,7 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	if !ok {
 		return xerrors.Errorf("unknown subcommand: %s", argv[0])
 	}
-	return rnr.run(argv[1:], outStream, errStream)
+	return rnr.run(context.Background(), argv[1:], outStream, errStream)
 }
 
 func printVersion(out io.Writer) error {
@@ -49,5 +55,6 @@ var dispatch = map[string]runner{
 }
 
 type runner interface {
-	run([]string, io.Writer, io.Writer) error
+	description() string
+	run(context.Context, []string, io.Writer, io.Writer) error
 }

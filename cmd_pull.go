@@ -1,14 +1,18 @@
 package kibela
 
 import (
+	"context"
 	"flag"
 	"io"
 )
 
-type cmdPull struct {
+type cmdPull struct{}
+
+func (cp *cmdPull) description() string {
+	return "sync all markdowns"
 }
 
-func (cp *cmdPull) run(argv []string, outStream io.Writer, errStream io.Writer) error {
+func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
 	fs := flag.NewFlagSet("kibela pull", flag.ContinueOnError)
 	fs.SetOutput(errStream)
 
