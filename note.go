@@ -274,7 +274,7 @@ func (ki *kibela) pushNote(n *note) error {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)
 	}
-	log.Printf("updated %s", ki.noteURL(res.UpdateNote.Note))
+	log.Printf("updated %s", ki.noteURL(n))
 	n.UpdatedAt = res.UpdateNote.Note.UpdatedAt
 	return nil
 }

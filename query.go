@@ -77,7 +77,7 @@ func listNotePaginateQuery(num int, cursor string) string {
 		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
 	}
 	return fmt.Sprintf(`{
-  notes(%s){
+  notes(%s, orderBy: {field: PUBLISHED_AT}){
     edges {
       node {
         id
@@ -96,7 +96,7 @@ func listFullNotePaginateQuery(num int, cursor string) string {
 		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
 	}
 	return fmt.Sprintf(`{
-  notes(%s){
+  notes(%s, orderBy: {field: PUBLISHED_AT}){
     edges {
       node {
         id
