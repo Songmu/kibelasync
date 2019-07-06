@@ -2,6 +2,7 @@ package kibelasync
 
 import (
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/Songmu/kibelasync/client"
@@ -10,6 +11,8 @@ import (
 
 type kibela struct {
 	cli *client.Client
+
+	team string
 
 	groups     map[string]ID
 	groupsErr  error
@@ -21,7 +24,10 @@ func newKibela() (*kibela, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("failed to newKibela: %w", err)
 	}
-	return &kibela{cli: cli}, nil
+	return &kibela{
+		cli:  cli,
+		team: os.Getenv("KIBELA_TEAM"),
+	}, nil
 }
 
 func (ki *kibela) fetchGroups() (map[string]ID, error) {

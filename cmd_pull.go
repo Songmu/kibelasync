@@ -35,7 +35,6 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	}
 	if *full {
 		return ki.pullFullNotes(dir)
-	} else {
-		return ki.pullNotes(dir)
 	}
+	return ki.pullNotes(dir)
 }

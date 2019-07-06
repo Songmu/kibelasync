@@ -3,6 +3,7 @@ package kibelasync
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -273,6 +274,12 @@ func (ki *kibela) pushNote(n *note) error {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)
 	}
+	basePath := "notes"
+	if !res.UpdateNote.Note.CoEditing {
+		basePath = "@" + n.Author.Account
+	}
+	num, _ := n.ID.Number()
+	log.Printf("updated https://%s.kibe.la/%s/%d", ki.team, basePath, num)
 	n.UpdatedAt = res.UpdateNote.Note.UpdatedAt
 	return nil
 }

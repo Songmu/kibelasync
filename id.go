@@ -9,6 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// ID represents kibela ID
 type ID string
 
 func newID(typ string, num int) ID {
