@@ -109,7 +109,7 @@ func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 			Budget *budget `json:"budget"`
 		}
 		if err := json.Unmarshal(gResp.Data, &res); err != nil {
-			log.Println("failed to retrieve budgets from response: %s", err)
+			log.Printf("failed to retrieve budgets from response: %s\n", err)
 		}
 		if res.Budget != nil {
 			cli.limiter.announceRemainingCost(res.Budget.Remaining)
@@ -124,7 +124,7 @@ type Payload struct {
 }
 
 type response struct {
-	Errors Errors          `json:"message,omitempty"`
+	Errors Errors          `json:"errors,omitempty"`
 	Data   json.RawMessage `json:"data,omitempty"`
 }
 
