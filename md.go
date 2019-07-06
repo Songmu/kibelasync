@@ -105,7 +105,7 @@ func loadMD(fpath string) (*md, error) {
 		return nil, xerrors.Errorf("failed to load md: %w", err)
 	}
 	m := &md{
-		ID:        newID("Blog", num),
+		ID:        newID(idTypeBlog, num),
 		UpdatedAt: fi.ModTime(),
 		filepath:  fpath,
 	}

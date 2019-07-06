@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -218,6 +219,44 @@ func (ki *kibela) pullFullNotes(dir string) error {
 				return xerrors.Errorf("failed to pullFullNotes while saving md: %w", err)
 			}
 		}
+	}
+	return nil
+}
+
+func (ki *kibela) pullNote(dir, arg string) error {
+	var (
+		id     ID
+		isFile bool
+	)
+	num, err := strconv.Atoi(arg)
+	if err == nil {
+		id = newID(idTypeBlog, num)
+	} else {
+		fname := filepath.Base(arg)
+		stuffs := strings.Split(fname, ".")
+		if len(stuffs) != 2 {
+			return xerrors.Errorf("failed to pullNote: invalid filename (must be a number or [0-9]+.md): %s", fname)
+		}
+		if stuffs[1] != "md" {
+			return xerrors.Errorf("failed to pullNote: invalid filename (must be a number or [0-9]+.md): %s", fname)
+		}
+		num, err := strconv.Atoi(stuffs[0])
+		if err != nil {
+			return xerrors.Errorf("failed to pullNote: invalid filename (must be a number or [0-9]+.md): %s", fname)
+		}
+		isFile = true
+		id = newID(idTypeBlog, num)
+	}
+	n, err := ki.getNote(id)
+	if err != nil {
+		return xerrors.Errorf("failed to pullNote while getNote(%s): %w", id, err)
+	}
+	m := n.toMD(dir)
+	if isFile {
+		m.filepath = arg
+	}
+	if err := m.save(); err != nil {
+		return xerrors.Errorf("failed to pullNote while m.save: %w", err)
 	}
 	return nil
 }

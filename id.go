@@ -9,6 +9,11 @@ import (
 	"golang.org/x/xerrors"
 )
 
+const (
+	idTypeBlog = "Blog"
+	idTypeUser = "User"
+)
+
 // ID represents kibela ID
 type ID string
 
