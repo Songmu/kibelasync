@@ -176,6 +176,48 @@ func (ki *kibela) pullNotes(dir string) error {
 	return nil
 }
 
+const pullBundleLimit = 50
+
+func (ki *kibela) pullFullNotes(dir string) error {
+	num, err := ki.getNotesCount()
+	if err != nil {
+		return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
+	}
+	nextCursor := ""
+	rest := num
+	for rest > 0 {
+		take := pullBundleLimit
+		if take > rest {
+			take = rest
+		}
+		rest = rest - take
+		data, err := ki.cli.Do(&client.Payload{Query: listFullNotePaginateQuery(take, nextCursor)})
+		if err != nil {
+			return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
+		}
+		var res struct {
+			Notes struct {
+				Edges []struct {
+					Node   *note  `json:"node"`
+					Cursor string `json:"cursor"`
+				} `json:"edges"`
+			} `json:"notes"`
+		}
+		if err := json.Unmarshal(data, &res); err != nil {
+			return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
+		}
+		if len(res.Notes.Edges) > 0 {
+			nextCursor = res.Notes.Edges[len(res.Notes.Edges)-1].Cursor
+		}
+		for _, e := range res.Notes.Edges {
+			if err := e.Node.toMD(dir).save(); err != nil {
+				return xerrors.Errorf("failed to pullFullNotes while saving md: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
 func (ki *kibela) pushNote(n *note) error {
 	remoteNote, err := ki.getNote(n.ID)
 	if err != nil {

@@ -18,6 +18,7 @@ func (cp *cmdPull) description() string {
 
 func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
 	fs := flag.NewFlagSet("kibela pull", flag.ContinueOnError)
+	var full = fs.Bool("full", false, "pull every markdowns")
 	fs.SetOutput(errStream)
 
 	if err := fs.Parse(argv); err != nil {
@@ -32,5 +33,9 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	if err != nil {
 		return err
 	}
-	return ki.pullNotes(dir)
+	if *full {
+		return ki.pullFullNotes(dir)
+	} else {
+		return ki.pullNotes(dir)
+	}
 }

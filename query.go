@@ -89,6 +89,36 @@ func listNotePaginateQuery(num int, cursor string) string {
 }`, query)
 }
 
+func listFullNotePaginateQuery(num int, cursor string) string {
+	query := fmt.Sprintf("first: %d", num)
+	if cursor != "" {
+		// cursor is base64 encoded number. ex. "Nw" = 7
+		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
+	}
+	return fmt.Sprintf(`{
+  notes(%s){
+    edges {
+      node {
+        id
+        title
+        content
+        coediting
+        folderName
+        groups {
+          name
+          id
+        }
+        author {
+          account
+        }
+        updatedAt
+      }
+      cursor
+    }
+  }
+}`, query)
+}
+
 const totalGroupCountQuery = `{
   groups() {
     totalCount
