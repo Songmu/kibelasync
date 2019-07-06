@@ -29,11 +29,14 @@ type md struct {
 }
 
 type meta struct {
-	Title     string   `yaml:"title"`
-	Author    string   `yaml:"author"`
-	CoEditing bool     `yaml:"coediting"`
-	Groups    []string `yaml:"groups,flow"`
-	Folder    string   `yaml:"folder,omitempty"`
+	Title  string   `yaml:"title"`
+	Author string   `yaml:"author,omitempty"`
+	Groups []string `yaml:"groups,flow"`
+	Folder string   `yaml:"folder,omitempty"`
+}
+
+func (me *meta) coediting() bool {
+	return me.Author == ""
 }
 
 func (m *md) fullContent() string {
@@ -173,7 +176,7 @@ func (m *md) toNote() *note {
 		ID:        m.ID,
 		Title:     m.FrontMatter.Title,
 		Content:   m.Content,
-		CoEditing: m.FrontMatter.CoEditing,
+		CoEditing: m.FrontMatter.coediting(),
 		Folder:    m.FrontMatter.Folder,
 		Groups:    groups,
 		Author: struct {
@@ -212,7 +215,7 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 				Title:     m.FrontMatter.Title,
 				Content:   m.Content,
 				Folder:    m.FrontMatter.Folder,
-				CoEditing: m.FrontMatter.CoEditing,
+				CoEditing: m.FrontMatter.coediting(),
 				GroupIDs:  groupIDs,
 			},
 		},
@@ -232,7 +235,7 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 		return xerrors.New("failed to publish to kibela on any reason. null createNote was returned")
 	}
 	n := res.CreateNote.Note
-	n.CoEditing = m.FrontMatter.CoEditing
+	n.CoEditing = m.FrontMatter.coediting()
 	log.Printf("published %s", ki.noteURL(n))
 	if !save {
 		return nil
@@ -244,7 +247,9 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 	m.FrontMatter.Groups = groups
 	m.ID = n.ID
 	m.UpdatedAt = n.UpdatedAt.Time
-	m.FrontMatter.Author = n.Author.Account
+	if !n.CoEditing {
+		m.FrontMatter.Author = n.Author.Account
+	}
 	origFilePath := m.filepath
 	m.filepath = ""
 	if err := m.save(); err != nil {

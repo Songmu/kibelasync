@@ -23,8 +23,9 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 	fs := flag.NewFlagSet("kibelasync publish", flag.ContinueOnError)
 	fs.SetOutput(errStream)
 	var (
-		title = fs.String("title", "", "title of the note")
-		save  = fs.Bool("save", false, "save file after published the note")
+		title  = fs.String("title", "", "title of the note")
+		save   = fs.Bool("save", false, "save file after published the note")
+		coEdit = fs.Bool("co-edit", false, "co-editing on")
 	)
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -50,6 +51,9 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 	m.loadContentFromReader(r, false)
 	if *title != "" {
 		m.FrontMatter.Title = *title
+	}
+	if !*coEdit && m.FrontMatter.Author == "" {
+		m.FrontMatter.Author = "dummy"
 	}
 	if m.FrontMatter == nil || m.FrontMatter.Title == "" {
 		return xerrors.New("title required")

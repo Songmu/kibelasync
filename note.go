@@ -33,17 +33,20 @@ func (n *note) toMD(dir string) *md {
 	for i, g := range n.Groups {
 		groups[i] = g.Name
 	}
+	author := ""
+	if !n.CoEditing {
+		author = n.Author.Account
+	}
 	return &md{
 		ID:        n.ID,
 		Content:   n.Content,
 		UpdatedAt: n.UpdatedAt.Time,
 		dir:       dir,
 		FrontMatter: &meta{
-			Title:     n.Title,
-			CoEditing: n.CoEditing,
-			Folder:    n.Folder,
-			Groups:    groups,
-			Author:    n.Author.Account,
+			Title:  n.Title,
+			Folder: n.Folder,
+			Groups: groups,
+			Author: author,
 		},
 	}
 }
@@ -277,6 +280,7 @@ func (ki *kibela) pushNote(n *note) error {
 	if res.UpdateNote.Note == nil {
 		return xerrors.New("failed to update kibela on any reason. null updateNote was returned")
 	}
+	n.Author.Account = res.UpdateNote.Note.Author.Account
 	log.Printf("updated %s", ki.noteURL(n))
 	n.UpdatedAt = res.UpdateNote.Note.UpdatedAt
 	return nil

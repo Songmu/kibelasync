@@ -16,6 +16,9 @@ const updateNoteMutation = `mutation($id: ID!, $baseNote: NoteInput!, $newNote: 
     draft: false })
   {
     note {
+      author {
+        account
+      }
       updatedAt
     }
   }

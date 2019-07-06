@@ -15,11 +15,10 @@ func newTestMD() *md {
 	return &md{
 		ID: ID("QmxvZy8zNjY"),
 		FrontMatter: &meta{
-			Title:     "たいとる！",
-			CoEditing: true,
-			Folder:    "hoge/fuga",
-			Groups:    []string{"Public", "Hobby"},
-			Author:    "Songmu",
+			Title:  "たいとる！",
+			Author: "Songmu",
+			Folder: "hoge/fuga",
+			Groups: []string{"Public", "Hobby"},
 		},
 		Content: "Hello World!\nこんにちは!\n",
 	}
@@ -30,7 +29,6 @@ func TestMD_fullContent(t *testing.T) {
 	expect := `---
 title: たいとる！
 author: Songmu
-coediting: true
 groups: [Public, Hobby]
 folder: hoge/fuga
 ---
