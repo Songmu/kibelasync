@@ -22,11 +22,13 @@ func (i ID) String() string {
 	return string(s)
 }
 
+// Type returns the type
 func (i ID) Type() string {
 	stuff := strings.Split(i.String(), "/")
 	return stuff[0]
 }
 
+// Number returns the number
 func (i ID) Number() (int, error) {
 	stuff := strings.Split(i.String(), "/")
 	if len(stuff) != 2 {
