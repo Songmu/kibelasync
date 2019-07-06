@@ -274,12 +274,7 @@ func (ki *kibela) pushNote(n *note) error {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.pushNote while unmarshaling response: %w", err)
 	}
-	basePath := "notes"
-	if !res.UpdateNote.Note.CoEditing {
-		basePath = "@" + n.Author.Account
-	}
-	num, _ := n.ID.Number()
-	log.Printf("updated https://%s.kibe.la/%s/%d", ki.team, basePath, num)
+	log.Printf("updated %s", ki.noteURL(res.UpdateNote.Note))
 	n.UpdatedAt = res.UpdateNote.Note.UpdatedAt
 	return nil
 }
@@ -297,4 +292,13 @@ func (n *note) toNoteInput() *noteInput {
 		Folder:    n.Folder,
 		CoEditing: n.CoEditing,
 	}
+}
+
+func (ki *kibela) noteURL(n *note) string {
+	basePath := "notes"
+	if !n.CoEditing {
+		basePath = "@" + n.Author.Account
+	}
+	num, _ := n.ID.Number()
+	return fmt.Sprintf("https://%s.kibe.la/%s/%d", ki.team, basePath, num)
 }

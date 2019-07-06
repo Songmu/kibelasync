@@ -20,7 +20,7 @@ func (cp *cmdPublish) description() string {
 }
 
 func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
-	fs := flag.NewFlagSet("kibelasync pull", flag.ContinueOnError)
+	fs := flag.NewFlagSet("kibelasync publish", flag.ContinueOnError)
 	fs.SetOutput(errStream)
 	var (
 		title = fs.String("title", "", "title of the note")

@@ -228,10 +228,12 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 	if err := json.Unmarshal(data, &res); err != nil {
 		return xerrors.Errorf("failed to ki.publishNote while unmarshaling response: %w", err)
 	}
+	n := res.CreateNote.Note
+	n.CoEditing = m.FrontMatter.CoEditing
+	log.Printf("published %s", ki.noteURL(n))
 	if !save {
 		return nil
 	}
-	n := res.CreateNote.Note
 	groups := make([]string, len(n.Groups))
 	for i, g := range n.Groups {
 		groups[i] = g.Name
