@@ -1,17 +1,17 @@
-kibela
+kibelasync
 =======
 
-[![Build Status](https://travis-ci.org/Songmu/kibela.svg?branch=master)][travis]
-[![Coverage Status](https://coveralls.io/repos/Songmu/kibela/badge.svg?branch=master)][coveralls]
+[![Build Status](https://travis-ci.org/Songmu/kibelasync.svg?branch=master)][travis]
+[![Coverage Status](https://coveralls.io/repos/Songmu/kibelasync/badge.svg?branch=master)][coveralls]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
-[![GoDoc](https://godoc.org/github.com/Songmu/kibela?status.svg)][godoc]
+[![GoDoc](https://godoc.org/github.com/Songmu/kibelasync?status.svg)][godoc]
 
-[travis]: https://travis-ci.org/Songmu/kibela
-[coveralls]: https://coveralls.io/r/Songmu/kibela?branch=master
-[license]: https://github.com/Songmu/kibela/blob/master/LICENSE
-[godoc]: https://godoc.org/github.com/Songmu/kibela
+[travis]: https://travis-ci.org/Songmu/kibelasync
+[coveralls]: https://coveralls.io/r/Songmu/kibelasync?branch=master
+[license]: https://github.com/Songmu/kibelasync/blob/master/LICENSE
+[godoc]: https://godoc.org/github.com/Songmu/kibelasync
 
-kibela short description
+kibelasync short description
 
 ## Synopsis
 
@@ -24,7 +24,7 @@ kibela short description
 ## Installation
 
 ```console
-% go get github.com/Songmu/kibela
+% go get github.com/Songmu/kibelasync
 ```
 
 ## Author

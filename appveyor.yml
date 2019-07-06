@@ -1,5 +1,5 @@
 version: build-{build}.{branch}
-clone_folder: c:\gopath\src\github.com/Songmu/kibela
+clone_folder: c:\gopath\src\github.com/Songmu/kibelasync
 shallow_clone: true
 environment:
   GOPATH: c:\gopath
