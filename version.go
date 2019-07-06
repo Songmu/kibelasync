@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 const version = "0.0.0"
 

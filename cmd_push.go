@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func (cp *cmdPush) description() string {
 }
 
 func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
-	fs := flag.NewFlagSet("kibela push", flag.ContinueOnError)
+	fs := flag.NewFlagSet("kibelasync push", flag.ContinueOnError)
 	fs.SetOutput(errStream)
 
 	if err := fs.Parse(argv); err != nil {
@@ -31,7 +31,7 @@ func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, 
 		return err
 	}
 	if fs.NArg() < 1 {
-		return xerrors.New("usage: kibela pull [md files]")
+		return xerrors.New("usage: kibelasync pull [md files]")
 	}
 	for _, f := range fs.Args() {
 		md, err := loadMD(f)

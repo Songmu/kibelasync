@@ -13,7 +13,7 @@ import (
 
 const (
 	endpointBase  = "https://%s.kibe.la/api/v1"
-	userAgentBase = "Songmu-kibela/%s (+https://github.com/Songmu/kibela)"
+	userAgentBase = "Songmu-kibelasync/%s (+https://github.com/Songmu/kibelasync)"
 )
 
 type Doer interface {

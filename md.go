@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Songmu/kibela/client"
+	"github.com/Songmu/kibelasync/client"
 	"github.com/ghodss/yaml"
 	"golang.org/x/xerrors"
 )

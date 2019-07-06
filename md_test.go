@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"fmt"
@@ -177,7 +177,7 @@ func TestKibela_publishMD(t *testing.T) {
   }
 }`, string(expectedID), expectUpdatedAt)}))
 
-	tmpdir, err := ioutil.TempDir("", "kibela-")
+	tmpdir, err := ioutil.TempDir("", "kibelasync-")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +266,7 @@ func TestKibela_pushMD(t *testing.T) {
   }
 }`, expectUpdatedAt)}))
 
-	tmpdir, err := ioutil.TempDir("", "kibela-")
+	tmpdir, err := ioutil.TempDir("", "kibelasync-")
 	if err != nil {
 		t.Fatal(err)
 	}

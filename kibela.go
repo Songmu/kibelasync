@@ -1,10 +1,10 @@
-package kibela
+package kibelasync
 
 import (
 	"fmt"
 	"sync"
 
-	"github.com/Songmu/kibela/client"
+	"github.com/Songmu/kibelasync/client"
 	"golang.org/x/xerrors"
 )
 

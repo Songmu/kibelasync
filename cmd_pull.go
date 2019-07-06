@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func (cp *cmdPull) description() string {
 }
 
 func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
-	fs := flag.NewFlagSet("kibela pull", flag.ContinueOnError)
+	fs := flag.NewFlagSet("kibelasync pull", flag.ContinueOnError)
 	var full = fs.Bool("full", false, "pull every markdowns")
 	fs.SetOutput(errStream)
 

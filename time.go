@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import "time"
 

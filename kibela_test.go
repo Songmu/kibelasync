@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Songmu/kibela/client"
+	"github.com/Songmu/kibelasync/client"
 )
 
 type testDoer struct {

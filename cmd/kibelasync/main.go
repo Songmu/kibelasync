@@ -5,12 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/Songmu/kibela"
+	"github.com/Songmu/kibelasync"
 )
 
 func main() {
 	log.SetFlags(0)
-	err := kibela.Run(os.Args[1:], os.Stdout, os.Stderr)
+	err := kibelasync.Run(os.Args[1:], os.Stdout, os.Stderr)
 	if err != nil && err != flag.ErrHelp {
 		log.Println(err)
 		exitCode := 1

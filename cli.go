@@ -1,4 +1,4 @@
-package kibela
+package kibelasync
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const cmdName = "kibela"
+const cmdName = "kibelasync"
 
-// Run the kibela
+// Run the kibelasync
 func Run(argv []string, outStream, errStream io.Writer) error {
 	log.SetOutput(errStream)
 	log.SetPrefix(fmt.Sprintf("[%s] ", cmdName))
