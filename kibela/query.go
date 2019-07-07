@@ -1,24 +1,15 @@
 package kibela
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const totalCountQuery = `{
   notes() {
     totalCount
   }
 }`
-
-// .data.notes.nodes[]
-func listNoteQuery(num int) string {
-	return fmt.Sprintf(`{
-  notes(first: %d) {
-    nodes {
-      id
-      updatedAt
-    }
-  }
-}`, num)
-}
 
 func getNoteQuery(id ID) string {
 	return fmt.Sprintf(`{
@@ -37,6 +28,38 @@ func getNoteQuery(id ID) string {
     updatedAt
   }
 }`, string(id))
+}
+
+func buildNotesArg(num int, cursor string, hasLimit bool) string {
+	var buf = &strings.Builder{}
+
+	// XXX currently (2019-07-10) when the "first" argument is specified, the API
+	//     returns first "newer" notes. I think it should be the "last" argument's behavior.
+	fmt.Fprintf(buf, "first: %d", num)
+	if cursor != "" {
+		// cursor is base64 encoded number. ex. "Nw" = 7
+		fmt.Fprintf(buf, ", after: %s", cursor)
+	}
+	// XXX currently (2019-07-10) "PUBLISHED_AT" target seems not to work correctly.
+	ordering := "PUBLISHED_AT"
+	if hasLimit {
+		ordering = "CONTENT_UPDATED_AT"
+	}
+	fmt.Fprintf(buf, ", orderBy: {field: %s}", ordering)
+
+	// ex. `first: 10, cursor: "Nw", orderBy: {field: PUBLISHED_AT}`
+	return buf.String()
+}
+
+func listNoteQuery(num int, hasLimit bool) string {
+	return fmt.Sprintf(`{
+  notes(%s) {
+    nodes {
+      id
+      updatedAt
+    }
+  }
+}`, buildNotesArg(num, "", hasLimit))
 }
 
 /*
@@ -70,14 +93,9 @@ func getNoteQuery(id ID) string {
   }
 }
 */
-func listNotePaginateQuery(num int, cursor string) string {
-	query := fmt.Sprintf("first: %d", num)
-	if cursor != "" {
-		// cursor is base64 encoded number. ex. "Nw" = 7
-		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
-	}
+func listNotePaginateQuery(num int, cursor string, hasLimit bool) string {
 	return fmt.Sprintf(`{
-  notes(%s, orderBy: {field: PUBLISHED_AT}){
+  notes(%s){
     edges {
       node {
         id
@@ -86,17 +104,12 @@ func listNotePaginateQuery(num int, cursor string) string {
       cursor
     }
   }
-}`, query)
+}`, buildNotesArg(num, cursor, hasLimit))
 }
 
-func listFullNotePaginateQuery(num int, cursor string) string {
-	query := fmt.Sprintf("first: %d", num)
-	if cursor != "" {
-		// cursor is base64 encoded number. ex. "Nw" = 7
-		query = fmt.Sprintf(`%s, after: "%s"`, query, cursor)
-	}
+func listFullNotePaginateQuery(num int, cursor string, hasLimit bool) string {
 	return fmt.Sprintf(`{
-  notes(%s, orderBy: {field: PUBLISHED_AT}){
+  notes(%s){
     edges {
       node {
         id
@@ -116,7 +129,7 @@ func listFullNotePaginateQuery(num int, cursor string) string {
       cursor
     }
   }
-}`, query)
+}`, buildNotesArg(num, cursor, hasLimit))
 }
 
 const totalGroupCountQuery = `{

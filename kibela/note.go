@@ -78,10 +78,13 @@ const (
 )
 
 // OK
-func (ki *Kibela) listNoteIDs() ([]*Note, error) {
+func (ki *Kibela) listNoteIDs(limit int) ([]*Note, error) {
 	num, err := ki.getNotesCount()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNodeIDs: %w", err)
+	}
+	if limit > 0 && limit < num {
+		num = limit
 	}
 	if num > bundleLimit {
 		nextCursor := ""
@@ -93,7 +96,7 @@ func (ki *Kibela) listNoteIDs() ([]*Note, error) {
 				take = rest
 			}
 			rest = rest - take
-			data, err := ki.cli.Do(&client.Payload{Query: listNotePaginateQuery(take, nextCursor)})
+			data, err := ki.cli.Do(&client.Payload{Query: listNotePaginateQuery(take, nextCursor, limit > 0)})
 			if err != nil {
 				return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
 			}
@@ -117,7 +120,7 @@ func (ki *Kibela) listNoteIDs() ([]*Note, error) {
 		}
 		return notes, nil
 	}
-	data, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num)})
+	data, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num, limit > 0)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNoteIDs: %w", err)
 	}
@@ -148,8 +151,8 @@ func (ki *Kibela) getNote(id ID) (*Note, error) {
 	return res.Note, nil
 }
 
-func (ki *Kibela) PullNotes(dir string) error {
-	notes, err := ki.listNoteIDs()
+func (ki *Kibela) PullNotes(dir string, limit int) error {
+	notes, err := ki.listNoteIDs(limit)
 	if err != nil {
 		return xerrors.Errorf("failed to pullNotes: %w", err)
 	}
@@ -185,10 +188,13 @@ func (ki *Kibela) PullNotes(dir string) error {
 
 const pullBundleLimit = 50
 
-func (ki *Kibela) PullFullNotes(dir string) error {
+func (ki *Kibela) PullFullNotes(dir string, limit int) error {
 	num, err := ki.getNotesCount()
 	if err != nil {
 		return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
+	}
+	if limit > 0 && limit < num {
+		num = limit
 	}
 	nextCursor := ""
 	rest := num
@@ -198,7 +204,7 @@ func (ki *Kibela) PullFullNotes(dir string) error {
 			take = rest
 		}
 		rest = rest - take
-		data, err := ki.cli.Do(&client.Payload{Query: listFullNotePaginateQuery(take, nextCursor)})
+		data, err := ki.cli.Do(&client.Payload{Query: listFullNotePaginateQuery(take, nextCursor, limit > 0)})
 		if err != nil {
 			return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
 		}
