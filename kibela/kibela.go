@@ -9,10 +9,16 @@ import (
 	"golang.org/x/xerrors"
 )
 
+const (
+	envKibelaDIR   = "KIBELA_DIR"
+	envKibelaTEAM  = "KIBELA_TEAM"
+	envKibelaTOKEN = "KIBELA_TOKEN"
+)
+
 var defaultDir = "notes"
 
 func init() {
-	d := os.Getenv("KIBELA_DIR")
+	d := os.Getenv(envKibelaDIR)
 	if d != "" {
 		defaultDir = d
 	}
@@ -29,13 +35,21 @@ type Kibela struct {
 }
 
 func New(ver string) (*Kibela, error) {
-	cli, err := client.New(ver)
+	token := os.Getenv(envKibelaTOKEN)
+	if token == "" {
+		return nil, fmt.Errorf("set token by KIBELA_TOKEN env value")
+	}
+	team := os.Getenv(envKibelaTEAM)
+	if team == "" {
+		return nil, fmt.Errorf("set team name by KIBELA_TEAM env value")
+	}
+	cli, err := client.New(ver, team, token)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to kibela.New: %w", err)
 	}
 	return &Kibela{
 		cli:  cli,
-		team: os.Getenv("KIBELA_TEAM"),
+		team: team,
 	}, nil
 }
 

@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"golang.org/x/xerrors"
@@ -35,15 +34,8 @@ type budget struct {
 	Remaining int `json:"remaining,string"`
 }
 
-func New(ver string) (*Client, error) {
-	cli := &Client{token: os.Getenv("KIBELA_TOKEN")}
-	if cli.token == "" {
-		return nil, fmt.Errorf("set token by KIBELA_TOKEN env value")
-	}
-	team := os.Getenv("KIBELA_TEAM")
-	if team == "" {
-		return nil, fmt.Errorf("set team name by KIBELA_TEAM env value")
-	}
+func New(ver, team, token string) (*Client, error) {
+	cli := &Client{token: token}
 	cli.endpoint = fmt.Sprintf(endpointBase, team)
 	cli.limiter = newRateLimitRoundTripper()
 	cli.cli = &http.Client{Transport: cli.limiter}
