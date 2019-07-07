@@ -79,11 +79,11 @@ func (m *MD) save() error {
 		return xerrors.Errorf("failed to save Markdown: %w", err)
 	}
 	if m.filepath == "" {
-		basePath := m.dir
-		if basePath == "" {
-			basePath = "notes"
+		baseDir := m.dir
+		if baseDir == "" {
+			baseDir = defaultDir
 		}
-		m.filepath = filepath.Join(basePath, fmt.Sprintf("%d.md", idNum))
+		m.filepath = filepath.Join(baseDir, fmt.Sprintf("%d.md", idNum))
 	}
 	if err := os.MkdirAll(filepath.Dir(m.filepath), 0755); err != nil {
 		return xerrors.Errorf("failed to save Markdown: %w", err)

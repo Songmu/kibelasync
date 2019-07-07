@@ -9,6 +9,15 @@ import (
 	"golang.org/x/xerrors"
 )
 
+var defaultDir = "notes"
+
+func init() {
+	d := os.Getenv("KIBELA_DIR")
+	if d != "" {
+		defaultDir = d
+	}
+}
+
 type Kibela struct {
 	cli *client.Client
 
