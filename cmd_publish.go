@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"golang.org/x/xerrors"
+	"github.com/Songmu/kibelasync/kibela"
 )
 
 type cmdPublish struct{}
@@ -31,7 +31,7 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 		return err
 	}
 	mdFile := fs.Arg(0)
-	ki, err := newKibela()
+	ki, err := kibela.New(version)
 	if err != nil {
 		return err
 	}
@@ -45,18 +45,9 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 	}
 	defer r.Close()
 
-	m := &md{
-		filepath: mdFile,
+	m, err := kibela.NewMD(mdFile, r, *title, *coEdit)
+	if err != nil {
+		return err
 	}
-	m.loadContentFromReader(r, false)
-	if *title != "" {
-		m.FrontMatter.Title = *title
-	}
-	if !*coEdit && m.FrontMatter.Author == "" {
-		m.FrontMatter.Author = "dummy"
-	}
-	if m.FrontMatter == nil || m.FrontMatter.Title == "" {
-		return xerrors.New("title required")
-	}
-	return ki.publishMD(m, *save)
+	return ki.PublishMD(m, *save)
 }

@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"bytes"
@@ -38,8 +38,8 @@ func newClient(responseTexts []string) *client.Client {
 	return client.Test(&testDoer{responseTexts: responseTexts})
 }
 
-func testKibela(cli *client.Client) *kibela {
-	return &kibela{cli: cli}
+func testKibela(cli *client.Client) *Kibela {
+	return &Kibela{cli: cli}
 }
 
 func TestKibela_fetchGroups(t *testing.T) {

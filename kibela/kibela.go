@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type kibela struct {
+type Kibela struct {
 	cli *client.Client
 
 	team string
@@ -19,18 +19,18 @@ type kibela struct {
 	groupsOnce sync.Once
 }
 
-func newKibela() (*kibela, error) {
-	cli, err := client.New(version)
+func New(ver string) (*Kibela, error) {
+	cli, err := client.New(ver)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to newKibela: %w", err)
+		return nil, xerrors.Errorf("failed to kibela.New: %w", err)
 	}
-	return &kibela{
+	return &Kibela{
 		cli:  cli,
 		team: os.Getenv("KIBELA_TEAM"),
 	}, nil
 }
 
-func (ki *kibela) fetchGroups() (map[string]ID, error) {
+func (ki *Kibela) fetchGroups() (map[string]ID, error) {
 	ki.groupsOnce.Do(func() {
 		if ki.groups != nil {
 			return
@@ -49,7 +49,7 @@ func (ki *kibela) fetchGroups() (map[string]ID, error) {
 	return ki.groups, ki.groupsErr
 }
 
-func (ki *kibela) fetchGroupID(name string) (ID, error) {
+func (ki *Kibela) fetchGroupID(name string) (ID, error) {
 	groups, err := ki.fetchGroups()
 	if err != nil {
 		return "", xerrors.Errorf("failed to fetchGroupID while setGroupID: %w", err)

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 
+	"github.com/Songmu/kibelasync/kibela"
 	"golang.org/x/xerrors"
 )
 
@@ -26,7 +27,7 @@ func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, 
 		return err
 	}
 
-	ki, err := newKibela()
+	ki, err := kibela.New(version)
 	if err != nil {
 		return err
 	}
@@ -34,11 +35,11 @@ func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, 
 		return xerrors.New("usage: kibelasync pull [md files]")
 	}
 	for _, f := range fs.Args() {
-		md, err := loadMD(f)
+		md, err := kibela.LoadMD(f)
 		if err != nil {
 			return err
 		}
-		if err := ki.pushMD(md); err != nil {
+		if err := ki.PushMD(md); err != nil {
 			return err
 		}
 	}

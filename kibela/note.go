@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"encoding/json"
@@ -16,20 +16,20 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type note struct {
+type Note struct {
 	ID        `json:"id"`
 	Title     string   `json:"title"`
 	Content   string   `json:"content"`
 	CoEditing bool     `json:"coediting"`
 	Folder    string   `json:"folderName"`
-	Groups    []*group `json:"groups"`
+	Groups    []*Group `json:"groups"`
 	Author    struct {
 		Account string `json:"account"`
 	}
 	UpdatedAt Time `json:"updatedAt"`
 }
 
-func (n *note) toMD(dir string) *md {
+func (n *Note) toMD(dir string) *MD {
 	groups := make([]string, len(n.Groups))
 	for i, g := range n.Groups {
 		groups[i] = g.Name
@@ -38,12 +38,12 @@ func (n *note) toMD(dir string) *md {
 	if !n.CoEditing {
 		author = n.Author.Account
 	}
-	return &md{
+	return &MD{
 		ID:        n.ID,
 		Content:   n.Content,
 		UpdatedAt: n.UpdatedAt.Time,
 		dir:       dir,
-		FrontMatter: &meta{
+		FrontMatter: &Meta{
 			Title:  n.Title,
 			Folder: n.Folder,
 			Groups: groups,
@@ -52,7 +52,7 @@ func (n *note) toMD(dir string) *md {
 	}
 }
 
-func (ki *kibela) getNotesCount() (int, error) {
+func (ki *Kibela) getNotesCount() (int, error) {
 	data, err := ki.cli.Do(&client.Payload{Query: totalCountQuery})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
@@ -78,7 +78,7 @@ const (
 )
 
 // OK
-func (ki *kibela) listNoteIDs() ([]*note, error) {
+func (ki *Kibela) listNoteIDs() ([]*Note, error) {
 	num, err := ki.getNotesCount()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNodeIDs: %w", err)
@@ -86,7 +86,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 	if num > bundleLimit {
 		nextCursor := ""
 		rest := num
-		notes := make([]*note, 0, num)
+		notes := make([]*Note, 0, num)
 		for rest > 0 {
 			take := pageLimit
 			if take > rest {
@@ -100,7 +100,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 			var res struct {
 				Notes struct {
 					Edges []struct {
-						Node   *note  `json:"node"`
+						Node   *Note  `json:"node"`
 						Cursor string `json:"cursor"`
 					} `json:"edges"`
 				} `json:"notes"`
@@ -123,7 +123,7 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 	}
 	var res struct {
 		Notes struct {
-			Nodes []*note `json:"nodes"`
+			Nodes []*Note `json:"nodes"`
 		} `json:"notes"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {
@@ -133,13 +133,13 @@ func (ki *kibela) listNoteIDs() ([]*note, error) {
 }
 
 // OK
-func (ki *kibela) getNote(id ID) (*note, error) {
+func (ki *Kibela) getNote(id ID) (*Note, error) {
 	data, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
 	var res struct {
-		Note *note `json:"note"`
+		Note *Note `json:"note"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
@@ -148,7 +148,7 @@ func (ki *kibela) getNote(id ID) (*note, error) {
 	return res.Note, nil
 }
 
-func (ki *kibela) pullNotes(dir string) error {
+func (ki *Kibela) PullNotes(dir string) error {
 	notes, err := ki.listNoteIDs()
 	if err != nil {
 		return xerrors.Errorf("failed to pullNotes: %w", err)
@@ -162,7 +162,7 @@ func (ki *kibela) pullNotes(dir string) error {
 		mdFilePath := filepath.Join(dir, fmt.Sprintf("%d.md", idNum))
 		_, err = os.Stat(mdFilePath)
 		if err == nil {
-			localMD, err := loadMD(mdFilePath)
+			localMD, err := LoadMD(mdFilePath)
 			if err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}
@@ -185,7 +185,7 @@ func (ki *kibela) pullNotes(dir string) error {
 
 const pullBundleLimit = 50
 
-func (ki *kibela) pullFullNotes(dir string) error {
+func (ki *Kibela) PullFullNotes(dir string) error {
 	num, err := ki.getNotesCount()
 	if err != nil {
 		return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
@@ -205,7 +205,7 @@ func (ki *kibela) pullFullNotes(dir string) error {
 		var res struct {
 			Notes struct {
 				Edges []struct {
-					Node   *note  `json:"node"`
+					Node   *Note  `json:"node"`
 					Cursor string `json:"cursor"`
 				} `json:"edges"`
 			} `json:"notes"`
@@ -225,7 +225,7 @@ func (ki *kibela) pullFullNotes(dir string) error {
 	return nil
 }
 
-func (ki *kibela) pullNote(dir, arg string) error {
+func (ki *Kibela) PullNote(dir, arg string) error {
 	var (
 		id     ID
 		isFile bool
@@ -263,7 +263,7 @@ func (ki *kibela) pullNote(dir, arg string) error {
 	return nil
 }
 
-func (ki *kibela) pushNote(n *note) error {
+func (ki *Kibela) pushNote(n *Note) error {
 	remoteNote, err := ki.getNote(n.ID)
 	if err != nil {
 		return xerrors.Errorf("failed to pushNote: %w", err)
@@ -312,7 +312,7 @@ func (ki *kibela) pushNote(n *note) error {
 	}
 	var res struct {
 		UpdateNote struct {
-			Note *note `json:"note"`
+			Note *Note `json:"note"`
 		} `json:"updateNote"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {
@@ -327,7 +327,7 @@ func (ki *kibela) pushNote(n *note) error {
 	return nil
 }
 
-func (n *note) toNoteInput() *noteInput {
+func (n *Note) toNoteInput() *noteInput {
 	groupIDs := make([]string, len(n.Groups))
 	for i, g := range n.Groups {
 		groupIDs[i] = string(g.ID)
@@ -342,7 +342,7 @@ func (n *note) toNoteInput() *noteInput {
 	}
 }
 
-func (ki *kibela) noteURL(n *note) string {
+func (ki *Kibela) noteURL(n *Note) string {
 	basePath := "notes"
 	if !n.CoEditing {
 		basePath = "@" + n.Author.Account

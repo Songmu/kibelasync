@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"encoding/json"
@@ -26,17 +26,17 @@ func TestNoteUnmarshalJSON(t *testing.T) {
      }
    }`
 	// omit {"updatedAt": "2019-06-23T17:22:38.496Z"} for testing
-	var n note
+	var n Note
 	if err := json.NewDecoder(strings.NewReader(input)).Decode(&n); err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
-	expect := note{
+	expect := Note{
 		ID:        ID("QmxvZy8zNjY"),
 		Title:     "APIテストpublic",
 		Content:   "コンテント!\nコンテント",
 		CoEditing: true,
 		Folder:    "testtop/testsub1",
-		Groups: []*group{
+		Groups: []*Group{
 			{
 				ID:   ID("R3JvdXAvMQ"),
 				Name: "Home",

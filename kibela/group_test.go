@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func TestKibela_getGroups(t *testing.T) {
 		t.Errorf("error should be nil, but: %s", err)
 	}
 
-	expect := []*group{{
+	expect := []*Group{{
 		ID:   ID("R3JvdXAvMQ"),
 		Name: "Home",
 	}, {

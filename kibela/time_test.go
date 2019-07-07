@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"bytes"

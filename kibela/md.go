@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"encoding/json"
@@ -15,31 +15,50 @@ import (
 	"time"
 
 	"github.com/Songmu/kibelasync/client"
+	"github.com/go-yaml/yaml"
 	"golang.org/x/xerrors"
-	"gopkg.in/yaml.v2"
 )
 
-type md struct {
+type MD struct {
 	ID          ID
-	FrontMatter *meta
+	FrontMatter *Meta
 	Content     string
 	UpdatedAt   time.Time
 
 	dir, filepath string
 }
 
-type meta struct {
+func NewMD(fpath string, r io.Reader, title string, coEdit bool) (*MD, error) {
+	m := &MD{
+		filepath: fpath,
+	}
+	if err := m.loadContentFromReader(r, false); err != nil {
+		return nil, xerrors.Errorf("failed to NewMDForPublish: %w", err)
+	}
+	if title != "" {
+		m.FrontMatter.Title = title
+	}
+	if m.FrontMatter.Title == "" {
+		return nil, xerrors.New("title required")
+	}
+	if !coEdit && m.FrontMatter.Author == "" {
+		m.FrontMatter.Author = "dummy"
+	}
+	return m, nil
+}
+
+type Meta struct {
 	Title  string   `yaml:"title"`
 	Author string   `yaml:"author,omitempty"`
 	Groups []string `yaml:"groups,flow"`
 	Folder string   `yaml:"folder,omitempty"`
 }
 
-func (me *meta) coediting() bool {
+func (me *Meta) coediting() bool {
 	return me.Author == ""
 }
 
-func (m *md) fullContent() string {
+func (m *MD) fullContent() string {
 	fm, _ := yaml.Marshal(m.FrontMatter)
 
 	c := strings.Join([]string{"---", string(fm) + "---", "", m.Content}, "\n")
@@ -50,7 +69,7 @@ func (m *md) fullContent() string {
 	return c
 }
 
-func (m *md) save() error {
+func (m *MD) save() error {
 	stuff := strings.Split(m.ID.String(), "/")
 	if len(stuff) != 2 {
 		return fmt.Errorf("invalid id: %s", string(m.ID))
@@ -81,7 +100,7 @@ func (m *md) save() error {
 	return nil
 }
 
-func loadMD(fpath string) (*md, error) {
+func LoadMD(fpath string) (*MD, error) {
 	fname := filepath.Base(fpath)
 	stuffs := strings.Split(fname, ".")
 	if len(stuffs) != 2 {
@@ -104,24 +123,24 @@ func loadMD(fpath string) (*md, error) {
 	if err != nil {
 		return nil, xerrors.Errorf("failed to load md: %w", err)
 	}
-	m := &md{
+	m := &MD{
 		ID:        newID(idTypeBlog, num),
 		UpdatedAt: fi.ModTime(),
 		filepath:  fpath,
 	}
 	if err := m.loadContentFromReader(f, true); err != nil {
-		return nil, xerrors.Errorf("failed to loadMD: %w", err)
+		return nil, xerrors.Errorf("failed to LoadMD: %w", err)
 	}
 	return m, nil
 }
 
-func (m *md) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
+func (m *MD) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		return xerrors.Errorf("failed to load md: %w", err)
 	}
 	if m.FrontMatter == nil {
-		m.FrontMatter = &meta{}
+		m.FrontMatter = &Meta{}
 	}
 	contents := strings.SplitN(string(b), "---\n", 3)
 	if len(contents) == 3 && contents[0] == "" {
@@ -167,12 +186,12 @@ func detectTitle(rawContent string) (title, content string) {
 	return title, content
 }
 
-func (m *md) toNote() *note {
-	groups := make([]*group, len(m.FrontMatter.Groups))
+func (m *MD) toNote() *Note {
+	groups := make([]*Group, len(m.FrontMatter.Groups))
 	for i, g := range m.FrontMatter.Groups {
-		groups[i] = &group{Name: g}
+		groups[i] = &Group{Name: g}
 	}
-	return &note{
+	return &Note{
 		ID:        m.ID,
 		Title:     m.FrontMatter.Title,
 		Content:   m.Content,
@@ -188,7 +207,7 @@ func (m *md) toNote() *note {
 	}
 }
 
-func (ki *kibela) pushMD(m *md) error {
+func (ki *Kibela) PushMD(m *MD) error {
 	n := m.toNote()
 	if err := ki.pushNote(n); err != nil {
 		return xerrors.Errorf("failed to pushMD: %w", err)
@@ -196,7 +215,7 @@ func (ki *kibela) pushMD(m *md) error {
 	return os.Chtimes(m.filepath, n.UpdatedAt.Time, n.UpdatedAt.Time)
 }
 
-func (ki *kibela) publishMD(m *md, save bool) error {
+func (ki *Kibela) PublishMD(m *MD, save bool) error {
 	groupIDs := make([]string, len(m.FrontMatter.Groups))
 	for i, g := range m.FrontMatter.Groups {
 		id, err := ki.fetchGroupID(g)
@@ -225,7 +244,7 @@ func (ki *kibela) publishMD(m *md, save bool) error {
 	}
 	var res struct {
 		CreateNote struct {
-			Note *note `json:"note"`
+			Note *Note `json:"note"`
 		} `json:"createNote"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {

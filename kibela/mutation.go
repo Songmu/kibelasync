@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 type noteInput struct {
 	Title     string   `json:"title"`

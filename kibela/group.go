@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"encoding/json"
@@ -7,12 +7,12 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type group struct {
+type Group struct {
 	ID   `json:"id"`
 	Name string `json:"name"`
 }
 
-func (ki *kibela) getGroupCount() (int, error) {
+func (ki *Kibela) getGroupCount() (int, error) {
 	data, err := ki.cli.Do(&client.Payload{Query: totalGroupCountQuery})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getGroupCount: %w", err)
@@ -28,7 +28,7 @@ func (ki *kibela) getGroupCount() (int, error) {
 	return res.Groups.TotalCount, nil
 }
 
-func (ki *kibela) getGroups() ([]*group, error) {
+func (ki *Kibela) getGroups() ([]*Group, error) {
 	num, err := ki.getGroupCount()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to getGroups: %w", err)
@@ -39,7 +39,7 @@ func (ki *kibela) getGroups() ([]*group, error) {
 	}
 	var res struct {
 		Groups struct {
-			Nodes []*group `json:"nodes"`
+			Nodes []*Group `json:"nodes"`
 		} `json:"groups"`
 	}
 	if err := json.Unmarshal(data, &res); err != nil {

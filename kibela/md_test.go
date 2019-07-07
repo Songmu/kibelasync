@@ -1,4 +1,4 @@
-package kibelasync
+package kibela
 
 import (
 	"fmt"
@@ -11,10 +11,10 @@ import (
 	"time"
 )
 
-func newTestMD() *md {
-	return &md{
+func newTestMD() *MD {
+	return &MD{
 		ID: ID("QmxvZy8zNjY"),
-		FrontMatter: &meta{
+		FrontMatter: &Meta{
 			Title:  "たいとる！",
 			Author: "Songmu",
 			Folder: "hoge/fuga",
@@ -73,7 +73,7 @@ func TestLoadMD(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, err := loadMD(testMDPath)
+	m, err := LoadMD(testMDPath)
 	if err != nil {
 		t.Errorf("error should be nil but: %s", err)
 	}
@@ -128,7 +128,7 @@ func TestDetectTitle(t *testing.T) {
 	}
 }
 
-func TestKibela_publishMD(t *testing.T) {
+func TestKibela_PublishMD(t *testing.T) {
 	expectedID := newID("Blog", 707)
 	expectUpdatedAt := "2019-06-23T16:54:09.447+09:00"
 	ti, err := time.Parse(rfc3339Milli, expectUpdatedAt)
@@ -189,12 +189,12 @@ func TestKibela_publishMD(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer r.Close()
-	m := &md{
+	m := &MD{
 		dir:      tmpdir,
 		filepath: draftPath,
 	}
 	m.loadContentFromReader(r, false)
-	err = ki.publishMD(m, true)
+	err = ki.PublishMD(m, true)
 	if err != nil {
 		t.Errorf("error shoud be nil, but: %s", err)
 	}
@@ -227,7 +227,7 @@ func TestKibela_publishMD(t *testing.T) {
 	}
 }
 
-func TestKibela_pushMD(t *testing.T) {
+func TestKibela_PushMD(t *testing.T) {
 	expectedID := newID("Blog", 707)
 	expectUpdatedAt := "2019-06-23T16:54:09.447+09:00"
 	ti, err := time.Parse(rfc3339Milli, expectUpdatedAt)
@@ -273,14 +273,14 @@ func TestKibela_pushMD(t *testing.T) {
 	if err := cp(baseMD, filePath); err != nil {
 		t.Fatal(err)
 	}
-	m, err := loadMD(filePath)
+	m, err := LoadMD(filePath)
 	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
 	if m.ID != expectedID {
 		t.Errorf("m.ID = %s, expect: %s", string(m.ID), string(expectedID))
 	}
-	if err := ki.pushMD(m); err != nil {
+	if err := ki.PushMD(m); err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
 	fi, err := os.Stat(filePath)

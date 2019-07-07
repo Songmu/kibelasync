@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"io"
+
+	"github.com/Songmu/kibelasync/kibela"
 )
 
 type cmdPull struct{}
@@ -29,14 +31,14 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 		return err
 	}
 
-	ki, err := newKibela()
+	ki, err := kibela.New(version)
 	if err != nil {
 		return err
 	}
 	args := fs.Args()
 	if len(args) > 0 {
 		for _, arg := range args {
-			if err := ki.pullNote(*dir, arg); err != nil {
+			if err := ki.PullNote(*dir, arg); err != nil {
 				return err
 			}
 		}
@@ -44,7 +46,7 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	}
 
 	if *full {
-		return ki.pullFullNotes(*dir)
+		return ki.PullFullNotes(*dir)
 	}
-	return ki.pullNotes(*dir)
+	return ki.PullNotes(*dir)
 }
