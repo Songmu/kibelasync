@@ -11,21 +11,39 @@ kibelasync
 [license]: https://github.com/Songmu/kibelasync/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/Songmu/kibelasync
 
-kibelasync short description
+kibelasync is a CLI for https://kibe.la
 
 ## Synopsis
 
-```go
-// simple usage here
+```console
+# set $KIBELA_TOKEN and $KIBELA_TEAM environment variable before using
+
+% kibelasync pull
+[kibelasync] saved to "notes/370.md"
+[kibelasync] saved to "notes/381.md"
+[kibelasync] saved to "notes/380.md"
+...
+
+% kibelasync push notes/370.md
+[kibelasync] updated https://example.kibe.la/notes/370
+
+% kibelasync publish < sample.md
+[kibelasync] published https://songmu.kibe.la/@Songmu/382
 ```
 
 ## Description
 
+kibela client to edit markdowns locally. It download markdowns with frontmatter.
+
 ## Installation
 
 ```console
-% go get github.com/Songmu/kibelasync
+% go get github.com/Songmu/kibelasync/cmd/kibelasync
 ```
+
+## See Also
+
+- [blogsync](https://github.com/motemen/blogsync)
 
 ## Author
 

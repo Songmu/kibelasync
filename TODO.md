@@ -1,4 +1,3 @@
-- How to specify directory. current: './notes' 
-- log output
+- enhance logs
 - configuration file
   - but keep configration free
