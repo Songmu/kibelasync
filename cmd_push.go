@@ -32,7 +32,7 @@ func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, 
 		return err
 	}
 	if fs.NArg() < 1 {
-		return xerrors.New("usage: kibelasync pull [md files]")
+		return xerrors.New("usage: kibelasync push [md files]")
 	}
 	for _, f := range fs.Args() {
 		md, err := kibela.LoadMD(f)

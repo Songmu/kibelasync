@@ -26,6 +26,7 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 		title  = fs.String("title", "", "title of the note")
 		save   = fs.Bool("save", false, "save file after published the note")
 		coEdit = fs.Bool("co-edit", false, "co-editing on")
+		dir    = fs.String("dir", "notes", "sync directory")
 	)
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -45,7 +46,7 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 	}
 	defer r.Close()
 
-	m, err := kibela.NewMD(mdFile, r, *title, *coEdit)
+	m, err := kibela.NewMD(mdFile, r, *title, *coEdit, *dir)
 	if err != nil {
 		return err
 	}

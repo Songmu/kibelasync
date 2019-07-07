@@ -28,9 +28,10 @@ type MD struct {
 	dir, filepath string
 }
 
-func NewMD(fpath string, r io.Reader, title string, coEdit bool) (*MD, error) {
+func NewMD(fpath string, r io.Reader, title string, coEdit bool, dir string) (*MD, error) {
 	m := &MD{
 		filepath: fpath,
+		dir:      dir,
 	}
 	if err := m.loadContentFromReader(r, false); err != nil {
 		return nil, xerrors.Errorf("failed to NewMDForPublish: %w", err)
@@ -41,6 +42,7 @@ func NewMD(fpath string, r io.Reader, title string, coEdit bool) (*MD, error) {
 	if m.FrontMatter.Title == "" {
 		return nil, xerrors.New("title required")
 	}
+	// If the author is an empty, it is considered as coediting, so fill in the "dummy" user for now
 	if !coEdit && m.FrontMatter.Author == "" {
 		m.FrontMatter.Author = "dummy"
 	}
