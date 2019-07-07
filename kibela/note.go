@@ -69,11 +69,11 @@ func (ki *Kibela) getNotesCount() (int, error) {
 }
 
 const (
-	// max query cost per request is 10,000
-	// so adjust limit size to not exceed the limit
-	// 100 (base) = 2 (id, updatedAt) * 4900 = 9900
+	// max query cost limit per request is 10,000
+	// so adjust limit size to not exceed it.
+	// 100 (base) + 2 (id, updatedAt) * 4900 = 9900
 	bundleLimit = 4900
-	// 100 (base) = 3 (id, updatedAt, cursor) * 3200 = 9700
+	// 100 (base) + 3 (id, updatedAt, cursor) * 3200 = 9700
 	pageLimit = 3200
 )
 
@@ -186,7 +186,7 @@ func (ki *Kibela) PullNotes(dir string, limit int) error {
 	return nil
 }
 
-const pullBundleLimit = 50
+const pullBundleLimit = 100
 
 func (ki *Kibela) PullFullNotes(dir string, limit int) error {
 	num, err := ki.getNotesCount()
