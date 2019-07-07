@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -21,6 +22,97 @@ func newTestMD() *MD {
 			Groups: []string{"Public", "Hobby"},
 		},
 		Content: "Hello World!\nこんにちは!\n",
+	}
+}
+
+func TestNewMD(t *testing.T) {
+	testCases := []struct {
+		name         string
+		input, title string
+		coEdit       bool
+		expect       MD
+	}{{
+		name:   "normal",
+		input:  `Hello!`,
+		title:  "title desu",
+		coEdit: false,
+		expect: MD{
+			Content: "Hello!\n",
+			FrontMatter: &Meta{
+				Title:  "title desu",
+				Author: "dummy",
+			},
+		},
+	}, {
+		name:   "co-edit",
+		input:  `Hello!`,
+		title:  "title desu",
+		coEdit: true,
+		expect: MD{
+			Content: "Hello!\n",
+			FrontMatter: &Meta{
+				Title:  "title desu",
+				Author: "", // should be empty
+			},
+		},
+	}, {
+		name: "detect title",
+		input: `# Hello!
+
+Go Go Go`,
+		expect: MD{
+			Content: "Go Go Go\n",
+			FrontMatter: &Meta{
+				Title:  "Hello!",
+				Author: "dummy",
+			},
+		},
+	}, {
+		name: "frontmatter",
+		input: `---
+title: Hello!!
+---
+
+Go Go Go`,
+		expect: MD{
+			Content: "Go Go Go\n",
+			FrontMatter: &Meta{
+				Title:  "Hello!!",
+				Author: "dummy",
+			},
+		},
+	}, {
+		name:  "not frontmatter",
+		title: "Hello!!!",
+		input: `---
+Hey!
+---
+
+Go Go Go`,
+		expect: MD{
+			Content: `---
+Hey!
+---
+
+Go Go Go
+`,
+			FrontMatter: &Meta{
+				Title:  "Hello!!!",
+				Author: "dummy",
+			},
+		},
+	}}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			m, err := NewMD("", strings.NewReader(tc.input), tc.title, tc.coEdit, "")
+			if err != nil {
+				t.Errorf("error should be nil, but: %s", err)
+			}
+			if !reflect.DeepEqual(*m, tc.expect) {
+				t.Errorf("NewMD() =\n  %+v\nexpect:\n  %+v", *m, tc.expect)
+			}
+		})
 	}
 }
 
