@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/Songmu/kibelasync/client"
-	"github.com/go-yaml/yaml"
 	"golang.org/x/xerrors"
+	"gopkg.in/yaml.v2"
 )
 
 type MD struct {
