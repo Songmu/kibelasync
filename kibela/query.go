@@ -33,21 +33,18 @@ func getNoteQuery(id ID) string {
 func buildNotesArg(num int, cursor string, hasLimit bool) string {
 	var buf = &strings.Builder{}
 
-	// XXX currently (2019-07-10) when the "first" argument is specified, the API
-	//     returns first "newer" notes. I think it should be the "last" argument's behavior.
 	fmt.Fprintf(buf, "first: %d", num)
 	if cursor != "" {
 		// cursor is base64 encoded number. ex. "Nw" = 7
 		fmt.Fprintf(buf, ", after: %s", cursor)
 	}
-	// XXX currently (2019-07-10) "PUBLISHED_AT" target seems not to work correctly.
 	ordering := "PUBLISHED_AT"
 	if hasLimit {
 		ordering = "CONTENT_UPDATED_AT"
 	}
-	fmt.Fprintf(buf, ", orderBy: {field: %s}", ordering)
+	fmt.Fprintf(buf, ", orderBy: {field: %s, direction: DESC}", ordering)
 
-	// ex. `first: 10, cursor: "Nw", orderBy: {field: PUBLISHED_AT}`
+	// ex. `first: 10, cursor: "Nw", orderBy: {field: PUBLISHED_AT, direction: DESC}`
 	return buf.String()
 }
 
