@@ -5,11 +5,17 @@ import (
 	"strings"
 )
 
-const totalCountQuery = `{
-  notes() {
+func totalCountQuery(folderID ID) string {
+	query := ""
+	if !folderID.Empty() {
+		query = fmt.Sprintf(`folderId: "%s"`, folderID.Raw())
+	}
+	return fmt.Sprintf(`{
+  notes(%s) {
     totalCount
   }
-}`
+}`, query)
+}
 
 func getNoteQuery(id ID) string {
 	return fmt.Sprintf(`{
@@ -30,7 +36,7 @@ func getNoteQuery(id ID) string {
 }`, string(id))
 }
 
-func buildNotesArg(num int, cursor string, hasLimit bool) string {
+func buildNotesArg(num int, folderID ID, cursor string, hasLimit bool) string {
 	var buf = &strings.Builder{}
 
 	fmt.Fprintf(buf, "first: %d", num)
@@ -38,6 +44,10 @@ func buildNotesArg(num int, cursor string, hasLimit bool) string {
 		// cursor is base64 encoded number. ex. "Nw" = 7
 		fmt.Fprintf(buf, ", after: %s", cursor)
 	}
+	if !folderID.Empty() {
+		fmt.Fprintf(buf, `, folderId: "%s"`, folderID.Raw())
+	}
+
 	ordering := "PUBLISHED_AT"
 	if hasLimit {
 		ordering = "CONTENT_UPDATED_AT"
@@ -48,7 +58,7 @@ func buildNotesArg(num int, cursor string, hasLimit bool) string {
 	return buf.String()
 }
 
-func listNoteQuery(num int, hasLimit bool) string {
+func listNoteQuery(num int, folderID ID, hasLimit bool) string {
 	return fmt.Sprintf(`{
   notes(%s) {
     nodes {
@@ -56,7 +66,7 @@ func listNoteQuery(num int, hasLimit bool) string {
       updatedAt
     }
   }
-}`, buildNotesArg(num, "", hasLimit))
+}`, buildNotesArg(num, folderID, "", hasLimit))
 }
 
 /*
@@ -90,7 +100,7 @@ func listNoteQuery(num int, hasLimit bool) string {
   }
 }
 */
-func listNotePaginateQuery(num int, cursor string, hasLimit bool) string {
+func listNotePaginateQuery(num int, folderID ID, cursor string, hasLimit bool) string {
 	return fmt.Sprintf(`{
   notes(%s){
     edges {
@@ -101,10 +111,10 @@ func listNotePaginateQuery(num int, cursor string, hasLimit bool) string {
       cursor
     }
   }
-}`, buildNotesArg(num, cursor, hasLimit))
+}`, buildNotesArg(num, folderID, cursor, hasLimit))
 }
 
-func listFullNotePaginateQuery(num int, cursor string, hasLimit bool) string {
+func listFullNotePaginateQuery(num int, folderID ID, cursor string, hasLimit bool) string {
 	return fmt.Sprintf(`{
   notes(%s){
     edges {
@@ -126,7 +136,7 @@ func listFullNotePaginateQuery(num int, cursor string, hasLimit bool) string {
       cursor
     }
   }
-}`, buildNotesArg(num, cursor, hasLimit))
+}`, buildNotesArg(num, folderID, cursor, hasLimit))
 }
 
 const totalGroupCountQuery = `{
@@ -141,6 +151,23 @@ func listGroupQuery(num int) string {
     nodes {
       id
       name
+    }
+  }
+}`, num)
+}
+
+const totalFolderCountQuery = `{
+  folders() {
+    totalCount
+  }
+}`
+
+func listFolderQuery(num int) string {
+	return fmt.Sprintf(`{
+  folders(first: %d) {
+    nodes {
+      id
+      fullName
     }
   }
 }`, num)
