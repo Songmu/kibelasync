@@ -27,6 +27,16 @@ func (i ID) String() string {
 	return string(s)
 }
 
+// Raw returns raw id string
+func (i ID) Raw() string {
+	return string(i)
+}
+
+// Empty returns the if the id is empty
+func (i ID) Empty() bool {
+	return i.Raw() == ""
+}
+
 // Type returns the type
 func (i ID) Type() string {
 	stuff := strings.Split(i.String(), "/")

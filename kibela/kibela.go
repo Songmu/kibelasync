@@ -32,6 +32,10 @@ type Kibela struct {
 	groups     map[string]ID
 	groupsErr  error
 	groupsOnce sync.Once
+
+	folders     map[string]ID
+	foldersErr  error
+	foldersOnce sync.Once
 }
 
 func New(ver string) (*Kibela, error) {
@@ -51,35 +55,4 @@ func New(ver string) (*Kibela, error) {
 		cli:  cli,
 		team: team,
 	}, nil
-}
-
-func (ki *Kibela) fetchGroups() (map[string]ID, error) {
-	ki.groupsOnce.Do(func() {
-		if ki.groups != nil {
-			return
-		}
-		groups, err := ki.getGroups()
-		if err != nil {
-			ki.groupsErr = xerrors.Errorf("failed to ki.setGroups: %w", err)
-			return
-		}
-		groupMap := make(map[string]ID, len(groups))
-		for _, g := range groups {
-			groupMap[g.Name] = g.ID
-		}
-		ki.groups = groupMap
-	})
-	return ki.groups, ki.groupsErr
-}
-
-func (ki *Kibela) fetchGroupID(name string) (ID, error) {
-	groups, err := ki.fetchGroups()
-	if err != nil {
-		return "", xerrors.Errorf("failed to fetchGroupID while setGroupID: %w", err)
-	}
-	id, ok := groups[name]
-	if !ok {
-		return "", fmt.Errorf("group %q doesn't exists", name)
-	}
-	return id, nil
 }

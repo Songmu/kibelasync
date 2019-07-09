@@ -21,9 +21,10 @@ func (cp *cmdPull) description() string {
 func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, errStream io.Writer) error {
 	fs := flag.NewFlagSet("kibelasync pull", flag.ContinueOnError)
 	var (
-		full  = fs.Bool("full", false, "pull every markdowns")
-		dir   = fs.String("dir", "notes", "sync directory")
-		limit = fs.Int("limit", 0, "sync directory")
+		full   = fs.Bool("full", false, "pull every markdowns")
+		dir    = fs.String("dir", "notes", "sync directory")
+		folder = fs.String("folder", "", "folder in kibela")
+		limit  = fs.Int("limit", 0, "sync directory")
 	)
 	fs.SetOutput(errStream)
 
@@ -46,7 +47,7 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	}
 
 	if *full {
-		return ki.PullFullNotes(*dir, *limit)
+		return ki.PullFullNotes(*dir, *folder, *limit)
 	}
-	return ki.PullNotes(*dir, *limit)
+	return ki.PullNotes(*dir, *folder, *limit)
 }
