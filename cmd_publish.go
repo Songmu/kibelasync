@@ -37,14 +37,16 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 		return err
 	}
 
-	var r io.ReadCloser = os.Stdin
+	var r io.Reader = os.Stdin
 	if mdFile != "" {
 		var err error
-		if r, err = os.Open(mdFile); err != nil {
+		f, err := os.Open(mdFile)
+		if err != nil {
 			return err
 		}
+		defer f.Close()
+		r = f
 	}
-	defer r.Close()
 
 	m, err := kibela.NewMD(mdFile, r, *title, *coEdit, *dir)
 	if err != nil {
