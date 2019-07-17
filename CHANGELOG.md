@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.3](https://github.com/Songmu/kibelasync/compare/v0.0.2...v0.0.3) (2019-07-18)
+
+* Do not close stdin [#3](https://github.com/Songmu/kibelasync/pull/3) ([mattn](https://github.com/mattn))
+
 ## [v0.0.2](https://github.com/Songmu/kibelasync/compare/v0.0.1...v0.0.2) (2019-07-09)
 
 * add -folder option into pull subcommand [#2](https://github.com/Songmu/kibelasync/pull/2) ([Songmu](https://github.com/Songmu))
