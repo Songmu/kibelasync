@@ -37,6 +37,14 @@ kibela client to edit markdowns locally. It download markdowns with frontmatter.
 
 ## Installation
 
+### Homebrew
+
+```console
+% brew install Songmu/tap/kibelasync
+```
+
+### go get
+
 ```console
 % go get github.com/Songmu/kibelasync/cmd/kibelasync
 ```
