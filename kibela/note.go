@@ -136,6 +136,12 @@ func (ki *Kibela) listNoteIDs(folderID ID, limit int) ([]*Note, error) {
 	return res.Notes.Nodes, nil
 }
 
+// GetNote gets kibela note
+func (ki *Kibela) GetNote(num int) (*Note, error) {
+	id := newID(idTypeBlog, num)
+	return ki.getNote(id)
+}
+
 // OK
 func (ki *Kibela) getNote(id ID) (*Note, error) {
 	data, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
