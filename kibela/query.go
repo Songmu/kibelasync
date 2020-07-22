@@ -8,10 +8,10 @@ import (
 func totalCountQuery(folderID ID) string {
 	query := ""
 	if !folderID.Empty() {
-		query = fmt.Sprintf(`folderId: "%s"`, folderID.Raw())
+		query = fmt.Sprintf(`(folderId: "%s")`, folderID.Raw())
 	}
 	return fmt.Sprintf(`{
-  notes(%s) {
+  notes%s {
     totalCount
   }
 }`, query)
