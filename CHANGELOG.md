@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.5](https://github.com/Songmu/kibelasync/compare/v0.0.4...v0.0.5) (2020-07-23)
+
+* udpate deps [#9](https://github.com/Songmu/kibelasync/pull/9) ([Songmu](https://github.com/Songmu))
+* define kibela.Comment [#8](https://github.com/Songmu/kibelasync/pull/8) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.4](https://github.com/Songmu/kibelasync/compare/v0.0.3...v0.0.4) (2020-07-22)
 
 * add func kibela.GetNote [#7](https://github.com/Songmu/kibelasync/pull/7) ([Songmu](https://github.com/Songmu))
