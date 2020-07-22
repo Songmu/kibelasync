@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	idTypeBlog = "Blog"
-	idTypeUser = "User"
+	idTypeBlog    = "Blog"
+	idTypeComment = "Comment"
+	idTypeUser    = "User"
 )
 
 // ID represents kibela ID

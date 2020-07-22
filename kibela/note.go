@@ -26,7 +26,9 @@ type Note struct {
 	Author    struct {
 		Account string `json:"account"`
 	}
-	UpdatedAt Time `json:"updatedAt"`
+	UpdatedAt   Time   `json:"updatedAt"`
+	PublishedAt Time   `json:"publishedAt"`
+	Summary     string `json:"summary"`
 }
 
 func (n *Note) toMD(dir string) *MD {
