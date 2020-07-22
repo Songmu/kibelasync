@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.4](https://github.com/Songmu/kibelasync/compare/v0.0.3...v0.0.4) (2020-07-22)
+
+* add func kibela.GetNote [#7](https://github.com/Songmu/kibelasync/pull/7) ([Songmu](https://github.com/Songmu))
+* fix query syntax error [#6](https://github.com/Songmu/kibelasync/pull/6) ([Songmu](https://github.com/Songmu))
+* update xerrors [#5](https://github.com/Songmu/kibelasync/pull/5) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.3](https://github.com/Songmu/kibelasync/compare/v0.0.2...v0.0.3) (2019-07-18)
 
 * Do not close stdin [#3](https://github.com/Songmu/kibelasync/pull/3) ([mattn](https://github.com/mattn))
