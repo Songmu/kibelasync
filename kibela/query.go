@@ -32,6 +32,8 @@ func getNoteQuery(id ID) string {
       account
     }
     updatedAt
+    publishedAt
+    summary: contentSummaryHtml
   }
 }`, string(id))
 }
@@ -140,7 +142,7 @@ func listFullNotePaginateQuery(num int, folderID ID, cursor string, hasLimit boo
 }
 
 const totalGroupCountQuery = `{
-  groups() {
+  groups {
     totalCount
   }
 }`
@@ -157,7 +159,7 @@ func listGroupQuery(num int) string {
 }
 
 const totalFolderCountQuery = `{
-  folders() {
+  folders {
     totalCount
   }
 }`
@@ -171,4 +173,17 @@ func listFolderQuery(num int) string {
     }
   }
 }`, num)
+}
+
+func getCommentQuery(id ID) string {
+	return fmt.Sprintf(`{
+  comment(id: "%s") {
+    author {
+      account
+    }
+    content
+    publishedAt
+    summary: contentSummaryHtml
+  }
+}`, string(id))
 }
