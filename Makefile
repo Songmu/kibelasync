@@ -27,12 +27,7 @@ test: deps
 
 .PHONY: lint
 lint: devel-deps
-	go vet
-	golint -set_exit_status
-
-.PHONY: cover
-cover: devel-deps
-	goveralls
+	golint -set_exit_status ./...
 
 .PHONY: build
 build: deps

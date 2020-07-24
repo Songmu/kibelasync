@@ -24,6 +24,7 @@ func init() {
 	}
 }
 
+// Kibela is a client for Kibela API
 type Kibela struct {
 	cli *client.Client
 
@@ -38,6 +39,7 @@ type Kibela struct {
 	foldersOnce sync.Once
 }
 
+// New returns new Kibela client
 func New(ver string) (*Kibela, error) {
 	token := os.Getenv(envKibelaTOKEN)
 	if token == "" {

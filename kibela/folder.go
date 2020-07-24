@@ -7,6 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Folder represents folder of Kibela
 type Folder struct {
 	ID       `json:"id"`
 	FullName string `json:"fullName"`

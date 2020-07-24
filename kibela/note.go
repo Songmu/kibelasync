@@ -16,6 +16,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Note represents note of Kibela
 type Note struct {
 	ID          `json:"id"`
 	Title       string   `json:"title"`
@@ -158,6 +159,7 @@ func (ki *Kibela) getNote(id ID) (*Note, error) {
 	return res.Note, nil
 }
 
+// PullNotes pulls notes from Kibela
 func (ki *Kibela) PullNotes(dir, folder string, limit int) error {
 	var folderID ID
 	if folder != "" {
@@ -203,6 +205,7 @@ func (ki *Kibela) PullNotes(dir, folder string, limit int) error {
 
 const pullBundleLimit = 100
 
+// PullFullNotes pull full notes from Kibela
 func (ki *Kibela) PullFullNotes(dir, folder string, limit int) error {
 	var folderID ID
 	if folder != "" {
@@ -255,6 +258,7 @@ func (ki *Kibela) PullFullNotes(dir, folder string, limit int) error {
 	return nil
 }
 
+// PullNote pulls a single note
 func (ki *Kibela) PullNote(dir, arg string) error {
 	var (
 		id     ID

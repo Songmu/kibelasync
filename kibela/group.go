@@ -8,6 +8,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Group represents groups of Kibela
 type Group struct {
 	ID   `json:"id"`
 	Name string `json:"name"`
