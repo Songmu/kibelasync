@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.7](https://github.com/Songmu/kibelasync/compare/v0.0.6...v0.0.7) (2020-07-24)
+
+* introduce GitHub Actions [#13](https://github.com/Songmu/kibelasync/pull/13) ([Songmu](https://github.com/Songmu))
+* fix test [#12](https://github.com/Songmu/kibelasync/pull/12) ([Songmu](https://github.com/Songmu))
+* drop User.AvatarImage [#11](https://github.com/Songmu/kibelasync/pull/11) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.6](https://github.com/Songmu/kibelasync/compare/v0.0.5...v0.0.6) (2020-07-24)
 
 * define type kibela.User struct [#10](https://github.com/Songmu/kibelasync/pull/10) ([Songmu](https://github.com/Songmu))
