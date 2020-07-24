@@ -17,18 +17,16 @@ import (
 )
 
 type Note struct {
-	ID        `json:"id"`
-	Title     string   `json:"title"`
-	Content   string   `json:"content"`
-	CoEditing bool     `json:"coediting"`
-	Folder    string   `json:"folderName"`
-	Groups    []*Group `json:"groups"`
-	Author    struct {
-		Account string `json:"account"`
-	}
-	UpdatedAt   Time   `json:"updatedAt"`
-	PublishedAt Time   `json:"publishedAt"`
-	Summary     string `json:"summary"`
+	ID          `json:"id"`
+	Title       string   `json:"title"`
+	Content     string   `json:"content"`
+	CoEditing   bool     `json:"coediting"`
+	Folder      string   `json:"folderName"`
+	Groups      []*Group `json:"groups"`
+	Author      User     `json:"author"`
+	UpdatedAt   Time     `json:"updatedAt"`
+	PublishedAt Time     `json:"publishedAt"`
+	Summary     string   `json:"summary"`
 }
 
 func (n *Note) toMD(dir string) *MD {

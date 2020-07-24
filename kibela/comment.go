@@ -8,11 +8,9 @@ import (
 )
 
 type Comment struct {
-	ID      `json:"id"`
-	Content string `json:"content"`
-	Author  struct {
-		Account string `json:"account"`
-	}
+	ID          `json:"id"`
+	Content     string `json:"content"`
+	Author      User   `json:"author"`
 	PublishedAt Time   `json:"publishedAt"`
 	Summary     string `json:"summary"`
 }

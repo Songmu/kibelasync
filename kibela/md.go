@@ -200,9 +200,7 @@ func (m *MD) toNote() *Note {
 		CoEditing: m.FrontMatter.coediting(),
 		Folder:    m.FrontMatter.Folder,
 		Groups:    groups,
-		Author: struct {
-			Account string `json:"account"`
-		}{
+		Author: User{
 			Account: m.FrontMatter.Author,
 		},
 		UpdatedAt: Time{Time: m.UpdatedAt},
