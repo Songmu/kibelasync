@@ -30,6 +30,9 @@ func getNoteQuery(id ID) string {
     }
     author {
       account
+      avatarImage {
+        url
+      }
     }
     updatedAt
     publishedAt
@@ -180,6 +183,9 @@ func getCommentQuery(id ID) string {
   comment(id: "%s") {
     author {
       account
+      avatarImage {
+        url
+      }
     }
     content
     publishedAt
