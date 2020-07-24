@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -281,7 +282,7 @@ func TestKibela_PublishMD(t *testing.T) {
 	}
 	m.loadContentFromReader(r, false)
 	r.Close()
-	err = ki.PublishMD(m, true)
+	err = ki.PublishMD(context.Background(), m, true)
 	if err != nil {
 		t.Errorf("error shoud be nil, but: %s", err)
 	}
@@ -361,7 +362,7 @@ func TestKibela_PushMD(t *testing.T) {
 	if m.ID != expectedID {
 		t.Errorf("m.ID = %s, expect: %s", string(m.ID), string(expectedID))
 	}
-	if err := ki.PushMD(m); err != nil {
+	if err := ki.PushMD(context.Background(), m); err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
 	fi, err := os.Stat(filePath)

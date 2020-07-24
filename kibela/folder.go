@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/Songmu/kibelasync/client"
@@ -13,8 +14,8 @@ type Folder struct {
 	FullName string `json:"fullName"`
 }
 
-func (ki *Kibela) getFolderCount() (int, error) {
-	data, err := ki.cli.Do(&client.Payload{Query: totalFolderCountQuery})
+func (ki *Kibela) getFolderCount(ctx context.Context) (int, error) {
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: totalFolderCountQuery})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getFolderCount: %w", err)
 	}
@@ -29,12 +30,12 @@ func (ki *Kibela) getFolderCount() (int, error) {
 	return res.Folders.TotalCount, nil
 }
 
-func (ki *Kibela) getFolders() ([]*Folder, error) {
-	num, err := ki.getFolderCount()
+func (ki *Kibela) getFolders(ctx context.Context) ([]*Folder, error) {
+	num, err := ki.getFolderCount(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to getFolders: %w", err)
 	}
-	data, err := ki.cli.Do(&client.Payload{Query: listFolderQuery(num)})
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: listFolderQuery(num)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getFolders: %w", err)
 	}
@@ -49,12 +50,12 @@ func (ki *Kibela) getFolders() ([]*Folder, error) {
 	return res.Folders.Nodes, nil
 }
 
-func (ki *Kibela) fetchFolders() (map[string]ID, error) {
+func (ki *Kibela) fetchFolders(ctx context.Context) (map[string]ID, error) {
 	ki.foldersOnce.Do(func() {
 		if ki.folders != nil {
 			return
 		}
-		folders, err := ki.getFolders()
+		folders, err := ki.getFolders(ctx)
 		if err != nil {
 			ki.foldersErr = xerrors.Errorf("failed to ki.setFolders: %w", err)
 			return
@@ -68,8 +69,8 @@ func (ki *Kibela) fetchFolders() (map[string]ID, error) {
 	return ki.folders, ki.foldersErr
 }
 
-func (ki *Kibela) fetchFolderID(name string) (ID, error) {
-	folders, err := ki.fetchFolders()
+func (ki *Kibela) fetchFolderID(ctx context.Context, name string) (ID, error) {
+	folders, err := ki.fetchFolders(ctx)
 	if err != nil {
 		return "", xerrors.Errorf("failed to fetchFolderID while setFolderID: %w", err)
 	}

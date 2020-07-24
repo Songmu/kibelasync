@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -61,7 +62,7 @@ func TestKibela_getNotesCount(t *testing.T) {
     }
   }
 }`, expect)}))
-	cnt, err := ki.getNotesCount("")
+	cnt, err := ki.getNotesCount(context.Background(), "")
 	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}

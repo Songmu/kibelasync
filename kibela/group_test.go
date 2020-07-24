@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -15,7 +16,7 @@ func TestKibela_getGroupCount(t *testing.T) {
     }
   }
 }`, expect)}))
-	cnt, err := ki.getGroupCount()
+	cnt, err := ki.getGroupCount(context.Background())
 	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
@@ -41,7 +42,7 @@ func TestKibela_getGroups(t *testing.T) {
     }
   }
 }`}))
-	out, err := ki.getGroups()
+	out, err := ki.getGroups(context.Background())
 	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}

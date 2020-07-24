@@ -52,5 +52,5 @@ func (cp *cmdPublish) run(ctx context.Context, argv []string, outStream io.Write
 	if err != nil {
 		return err
 	}
-	return ki.PublishMD(m, *save)
+	return ki.PublishMD(ctx, m, *save)
 }

@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -47,7 +48,7 @@ func New(ver, team, token string) (*Client, error) {
 }
 
 // Do GraphQL request
-func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
+func (cli *Client) Do(ctx context.Context, pa *Payload) (json.RawMessage, error) {
 	pa.Query = strings.TrimSpace(pa.Query)
 	isQuery := !strings.HasPrefix(pa.Query, "mutation")
 	if isQuery {
@@ -68,7 +69,7 @@ func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 	if err := json.NewEncoder(&body).Encode(pa); err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, cli.endpoint, &body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cli.endpoint, &body)
 	if err != nil {
 		return nil, err
 	}
