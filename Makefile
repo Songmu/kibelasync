@@ -23,7 +23,7 @@ devel-deps: deps
 
 .PHONY: test
 test: deps
-	go test
+	go test ./...
 
 .PHONY: lint
 lint: devel-deps
