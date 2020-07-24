@@ -37,8 +37,8 @@ build: deps
 install: deps
 	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/kibelasync
 
-.PHONY: bump
-bump: devel-deps
+.PHONY: release
+release: devel-deps
 	godzil release
 
 CREDITS: go.sum devel-deps
