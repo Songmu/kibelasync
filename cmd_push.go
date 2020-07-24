@@ -39,7 +39,7 @@ func (cp *cmdPush) run(ctx context.Context, argv []string, outStream io.Writer, 
 		if err != nil {
 			return err
 		}
-		if err := ki.PushMD(md); err != nil {
+		if err := ki.PushMD(ctx, md); err != nil {
 			return err
 		}
 	}

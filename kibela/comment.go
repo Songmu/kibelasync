@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/Songmu/kibelasync/client"
@@ -17,9 +18,9 @@ type Comment struct {
 }
 
 // GetComment gets kibela comment
-func (ki *Kibela) GetComment(num int) (*Comment, error) {
+func (ki *Kibela) GetComment(ctx context.Context, num int) (*Comment, error) {
 	id := newID(idTypeComment, num)
-	data, err := ki.cli.Do(&client.Payload{Query: getCommentQuery(id)})
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: getCommentQuery(id)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.GetComment: %w", err)
 	}

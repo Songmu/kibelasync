@@ -2,6 +2,7 @@ package kibela
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -59,7 +60,7 @@ func TestKibela_fetchGroups(t *testing.T) {
     }
   }
 }`}))
-	groups, err := ki.fetchGroups()
+	groups, err := ki.fetchGroups(context.Background())
 	if err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
@@ -79,7 +80,7 @@ func TestKibela_fetchGroupID(t *testing.T) {
     "message": "error!"
   }]
 }`}))
-		_, err := ki.fetchGroupID("Home")
+		_, err := ki.fetchGroupID(context.Background(), "Home")
 		if err == nil || !strings.Contains(err.Error(), "while setGroupID") {
 			t.Errorf("error should be occurred and contains `while setGroupID`, but: %v", err)
 		}
@@ -103,14 +104,14 @@ func TestKibela_fetchGroupID(t *testing.T) {
     }
   }
 }`, expect)}))
-		id, err := ki.fetchGroupID("Home")
+		id, err := ki.fetchGroupID(context.Background(), "Home")
 		if err != nil {
 			t.Errorf("error should be nil, but: %s", err)
 		}
 		if id != ID(expect) {
 			t.Errorf("got: %s, expect: %s", string(id), expect)
 		}
-		_, err = ki.fetchGroupID("Unknown")
+		_, err = ki.fetchGroupID(context.Background(), "Unknown")
 		if err == nil || !strings.Contains(err.Error(), `group "Unknown"`) {
 			t.Errorf("error should be occurred and contains `group \"Unknown\"`, but: %v", err)
 		}

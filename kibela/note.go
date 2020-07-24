@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -53,8 +54,8 @@ func (n *Note) toMD(dir string) *MD {
 	}
 }
 
-func (ki *Kibela) getNotesCount(folderID ID) (int, error) {
-	data, err := ki.cli.Do(&client.Payload{Query: totalCountQuery(folderID)})
+func (ki *Kibela) getNotesCount(ctx context.Context, folderID ID) (int, error) {
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: totalCountQuery(folderID)})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getNotesCount: %w", err)
 	}
@@ -79,8 +80,8 @@ const (
 )
 
 // OK
-func (ki *Kibela) listNoteIDs(folderID ID, limit int) ([]*Note, error) {
-	num, err := ki.getNotesCount(folderID)
+func (ki *Kibela) listNoteIDs(ctx context.Context, folderID ID, limit int) ([]*Note, error) {
+	num, err := ki.getNotesCount(ctx, folderID)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNodeIDs: %w", err)
 	}
@@ -97,7 +98,7 @@ func (ki *Kibela) listNoteIDs(folderID ID, limit int) ([]*Note, error) {
 				take = rest
 			}
 			rest = rest - take
-			data, err := ki.cli.Do(&client.Payload{
+			data, err := ki.cli.Do(ctx, &client.Payload{
 				Query: listNotePaginateQuery(take, folderID, nextCursor, limit > 0)})
 			if err != nil {
 				return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
@@ -122,7 +123,7 @@ func (ki *Kibela) listNoteIDs(folderID ID, limit int) ([]*Note, error) {
 		}
 		return notes, nil
 	}
-	data, err := ki.cli.Do(&client.Payload{Query: listNoteQuery(num, folderID, limit > 0)})
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: listNoteQuery(num, folderID, limit > 0)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.listNoteIDs: %w", err)
 	}
@@ -138,14 +139,14 @@ func (ki *Kibela) listNoteIDs(folderID ID, limit int) ([]*Note, error) {
 }
 
 // GetNote gets kibela note
-func (ki *Kibela) GetNote(num int) (*Note, error) {
+func (ki *Kibela) GetNote(ctx context.Context, num int) (*Note, error) {
 	id := newID(idTypeBlog, num)
-	return ki.getNote(id)
+	return ki.getNote(ctx, id)
 }
 
 // OK
-func (ki *Kibela) getNote(id ID) (*Note, error) {
-	data, err := ki.cli.Do(&client.Payload{Query: getNoteQuery(id)})
+func (ki *Kibela) getNote(ctx context.Context, id ID) (*Note, error) {
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: getNoteQuery(id)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getNote: %w", err)
 	}
@@ -160,16 +161,16 @@ func (ki *Kibela) getNote(id ID) (*Note, error) {
 }
 
 // PullNotes pulls notes from Kibela
-func (ki *Kibela) PullNotes(dir, folder string, limit int) error {
+func (ki *Kibela) PullNotes(ctx context.Context, dir, folder string, limit int) error {
 	var folderID ID
 	if folder != "" {
 		var err error
-		folderID, err = ki.fetchFolderID(folder)
+		folderID, err = ki.fetchFolderID(ctx, folder)
 		if err != nil {
 			return xerrors.Errorf("failed to PullNotes: %w", err)
 		}
 	}
-	notes, err := ki.listNoteIDs(folderID, limit)
+	notes, err := ki.listNoteIDs(ctx, folderID, limit)
 	if err != nil {
 		return xerrors.Errorf("failed to pullNotes: %w", err)
 	}
@@ -189,7 +190,7 @@ func (ki *Kibela) PullNotes(dir, folder string, limit int) error {
 			localT = localMD.UpdatedAt
 		}
 		if n.UpdatedAt.After(localT) {
-			allNote, err := ki.getNote(n.ID)
+			allNote, err := ki.getNote(ctx, n.ID)
 			if err != nil {
 				return xerrors.Errorf("failed to pullNotes: %w", err)
 			}
@@ -206,16 +207,16 @@ func (ki *Kibela) PullNotes(dir, folder string, limit int) error {
 const pullBundleLimit = 100
 
 // PullFullNotes pull full notes from Kibela
-func (ki *Kibela) PullFullNotes(dir, folder string, limit int) error {
+func (ki *Kibela) PullFullNotes(ctx context.Context, dir, folder string, limit int) error {
 	var folderID ID
 	if folder != "" {
 		var err error
-		folderID, err = ki.fetchFolderID(folder)
+		folderID, err = ki.fetchFolderID(ctx, folder)
 		if err != nil {
 			return xerrors.Errorf("failed to PullFullNotes: %w", err)
 		}
 	}
-	num, err := ki.getNotesCount(folderID)
+	num, err := ki.getNotesCount(ctx, folderID)
 	if err != nil {
 		return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
 	}
@@ -230,7 +231,7 @@ func (ki *Kibela) PullFullNotes(dir, folder string, limit int) error {
 			take = rest
 		}
 		rest = rest - take
-		data, err := ki.cli.Do(&client.Payload{
+		data, err := ki.cli.Do(ctx, &client.Payload{
 			Query: listFullNotePaginateQuery(take, folderID, nextCursor, limit > 0)})
 		if err != nil {
 			return xerrors.Errorf("failed to ki.pullFullNotes: %w", err)
@@ -259,7 +260,7 @@ func (ki *Kibela) PullFullNotes(dir, folder string, limit int) error {
 }
 
 // PullNote pulls a single note
-func (ki *Kibela) PullNote(dir, arg string) error {
+func (ki *Kibela) PullNote(ctx context.Context, dir, arg string) error {
 	var (
 		id     ID
 		isFile bool
@@ -283,7 +284,7 @@ func (ki *Kibela) PullNote(dir, arg string) error {
 		isFile = true
 		id = newID(idTypeBlog, num)
 	}
-	n, err := ki.getNote(id)
+	n, err := ki.getNote(ctx, id)
 	if err != nil {
 		return xerrors.Errorf("failed to pullNote while getNote(%s): %w", id, err)
 	}
@@ -297,8 +298,8 @@ func (ki *Kibela) PullNote(dir, arg string) error {
 	return nil
 }
 
-func (ki *Kibela) pushNote(n *Note) error {
-	remoteNote, err := ki.getNote(n.ID)
+func (ki *Kibela) pushNote(ctx context.Context, n *Note) error {
+	remoteNote, err := ki.getNote(ctx, n.ID)
 	if err != nil {
 		return xerrors.Errorf("failed to pushNote: %w", err)
 	}
@@ -314,7 +315,7 @@ func (ki *Kibela) pushNote(n *Note) error {
 			if ok {
 				g.ID = id
 			} else {
-				id, err := ki.fetchGroupID(g.Name)
+				id, err := ki.fetchGroupID(ctx, g.Name)
 				if err != nil {
 					return xerrors.Errorf("failed to fetch group name: %q, %w", g.Name, err)
 				}
@@ -329,7 +330,7 @@ func (ki *Kibela) pushNote(n *Note) error {
 		n.UpdatedAt = remoteNote.UpdatedAt
 		return nil
 	}
-	data, err := ki.cli.Do(&client.Payload{
+	data, err := ki.cli.Do(ctx, &client.Payload{
 		Query: updateNoteMutation,
 		Variables: struct {
 			ID       ID         `json:"id"`

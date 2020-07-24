@@ -39,7 +39,7 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	args := fs.Args()
 	if len(args) > 0 {
 		for _, arg := range args {
-			if err := ki.PullNote(*dir, arg); err != nil {
+			if err := ki.PullNote(ctx, *dir, arg); err != nil {
 				return err
 			}
 		}
@@ -47,7 +47,7 @@ func (cp *cmdPull) run(ctx context.Context, argv []string, outStream io.Writer, 
 	}
 
 	if *full {
-		return ki.PullFullNotes(*dir, *folder, *limit)
+		return ki.PullFullNotes(ctx, *dir, *folder, *limit)
 	}
-	return ki.PullNotes(*dir, *folder, *limit)
+	return ki.PullNotes(ctx, *dir, *folder, *limit)
 }

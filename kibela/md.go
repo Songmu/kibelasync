@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -213,26 +214,26 @@ func (m *MD) toNote() *Note {
 }
 
 // PushMD pushes MD to Kibela
-func (ki *Kibela) PushMD(m *MD) error {
+func (ki *Kibela) PushMD(ctx context.Context, m *MD) error {
 	n := m.toNote()
-	if err := ki.pushNote(n); err != nil {
+	if err := ki.pushNote(ctx, n); err != nil {
 		return xerrors.Errorf("failed to pushMD: %w", err)
 	}
 	return os.Chtimes(m.filepath, n.UpdatedAt.Time, n.UpdatedAt.Time)
 }
 
 // PublishMD publishes new MD to Kibela
-func (ki *Kibela) PublishMD(m *MD, save bool) error {
+func (ki *Kibela) PublishMD(ctx context.Context, m *MD, save bool) error {
 	groupIDs := make([]string, len(m.FrontMatter.Groups))
 	for i, g := range m.FrontMatter.Groups {
-		id, err := ki.fetchGroupID(g)
+		id, err := ki.fetchGroupID(ctx, g)
 		if err != nil {
 			return xerrors.Errorf("failed to publishMD: %w", err)
 		}
 		groupIDs[i] = string(id)
 	}
 	sort.Strings(groupIDs)
-	data, err := ki.cli.Do(&client.Payload{
+	data, err := ki.cli.Do(ctx, &client.Payload{
 		Query: createNoteMutation,
 		Variables: struct {
 			Input *noteInput `json:"input"`

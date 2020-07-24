@@ -1,6 +1,7 @@
 package kibela
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -14,8 +15,8 @@ type Group struct {
 	Name string `json:"name"`
 }
 
-func (ki *Kibela) getGroupCount() (int, error) {
-	data, err := ki.cli.Do(&client.Payload{Query: totalGroupCountQuery})
+func (ki *Kibela) getGroupCount(ctx context.Context) (int, error) {
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: totalGroupCountQuery})
 	if err != nil {
 		return 0, xerrors.Errorf("failed to ki.getGroupCount: %w", err)
 	}
@@ -30,12 +31,12 @@ func (ki *Kibela) getGroupCount() (int, error) {
 	return res.Groups.TotalCount, nil
 }
 
-func (ki *Kibela) getGroups() ([]*Group, error) {
-	num, err := ki.getGroupCount()
+func (ki *Kibela) getGroups(ctx context.Context) ([]*Group, error) {
+	num, err := ki.getGroupCount(ctx)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to getGroups: %w", err)
 	}
-	data, err := ki.cli.Do(&client.Payload{Query: listGroupQuery(num)})
+	data, err := ki.cli.Do(ctx, &client.Payload{Query: listGroupQuery(num)})
 	if err != nil {
 		return nil, xerrors.Errorf("failed to ki.getGroups: %w", err)
 	}
@@ -50,12 +51,12 @@ func (ki *Kibela) getGroups() ([]*Group, error) {
 	return res.Groups.Nodes, nil
 }
 
-func (ki *Kibela) fetchGroups() (map[string]ID, error) {
+func (ki *Kibela) fetchGroups(ctx context.Context) (map[string]ID, error) {
 	ki.groupsOnce.Do(func() {
 		if ki.groups != nil {
 			return
 		}
-		groups, err := ki.getGroups()
+		groups, err := ki.getGroups(ctx)
 		if err != nil {
 			ki.groupsErr = xerrors.Errorf("failed to ki.setGroups: %w", err)
 			return
@@ -69,8 +70,8 @@ func (ki *Kibela) fetchGroups() (map[string]ID, error) {
 	return ki.groups, ki.groupsErr
 }
 
-func (ki *Kibela) fetchGroupID(name string) (ID, error) {
-	groups, err := ki.fetchGroups()
+func (ki *Kibela) fetchGroupID(ctx context.Context, name string) (ID, error) {
+	groups, err := ki.fetchGroups(ctx)
 	if err != nil {
 		return "", xerrors.Errorf("failed to fetchGroupID while setGroupID: %w", err)
 	}
