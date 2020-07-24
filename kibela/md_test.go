@@ -280,6 +280,7 @@ func TestKibela_PublishMD(t *testing.T) {
 		filepath: draftPath,
 	}
 	m.loadContentFromReader(r, false)
+	r.Close()
 	err = ki.PublishMD(m, true)
 	if err != nil {
 		t.Errorf("error shoud be nil, but: %s", err)
