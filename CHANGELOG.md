@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.1.0](https://github.com/Songmu/kibelasync/compare/v0.0.7...v0.1.0) (2020-07-24)
+
+* contextize [#14](https://github.com/Songmu/kibelasync/pull/14) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.7](https://github.com/Songmu/kibelasync/compare/v0.0.6...v0.0.7) (2020-07-24)
 
 * introduce GitHub Actions [#13](https://github.com/Songmu/kibelasync/pull/13) ([Songmu](https://github.com/Songmu))
