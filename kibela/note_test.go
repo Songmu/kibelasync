@@ -42,9 +42,7 @@ func TestNoteUnmarshalJSON(t *testing.T) {
 				Name: "Home",
 			},
 		},
-		Author: struct {
-			Account string `json:"account"`
-		}{
+		Author: User{
 			Account: "Songmu",
 		},
 	}
