@@ -147,16 +147,10 @@ func TestMD_save(t *testing.T) {
 	if err := m.save(); err != nil {
 		t.Errorf("error should be nil, but: %s", err)
 	}
-	out, err := ioutil.ReadFile(tmpf.Name())
-	if err != nil {
-		t.Fatal(err)
-	}
-	expect, err := ioutil.ReadFile(testMDPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(out) != string(expect) {
-		t.Errorf("out:\n%s\nexpect:\n%s\n", string(out), string(expect))
+	out := readFile(t, tmpf.Name())
+	expect := readFile(t, testMDPath)
+	if out != expect {
+		t.Errorf("out:\n%s\nexpect:\n%s\n", out, expect)
 	}
 }
 
@@ -286,6 +280,7 @@ func TestKibela_PublishMD(t *testing.T) {
 		filepath: draftPath,
 	}
 	m.loadContentFromReader(r, false)
+	r.Close()
 	err = ki.PublishMD(m, true)
 	if err != nil {
 		t.Errorf("error shoud be nil, but: %s", err)
@@ -306,16 +301,10 @@ func TestKibela_PublishMD(t *testing.T) {
 		t.Errorf("fi.ModTime() = %q, expext: %q", fi.ModTime(), ti)
 	}
 
-	expect, err := ioutil.ReadFile(baseMD)
-	if err != nil {
-		t.Fatal(err)
-	}
-	out, err := ioutil.ReadFile(notePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(expect) != string(out) {
-		t.Errorf("\n   out:\n%s\nexpect:\n%s", string(out), string(expect))
+	expect := readFile(t, baseMD)
+	out := readFile(t, notePath)
+	if expect != out {
+		t.Errorf("\n   out:\n%s\nexpect:\n%s", out, expect)
 	}
 }
 
@@ -383,17 +372,20 @@ func TestKibela_PushMD(t *testing.T) {
 		t.Errorf("fi.ModTime() = %q, expext: %q", fi.ModTime(), ti)
 	}
 
-	expect, err := ioutil.ReadFile(baseMD)
+	expect := readFile(t, baseMD)
+	out := readFile(t, filePath)
+	if expect != out {
+		t.Errorf("\n   out:\n%s\nexpect:\n%s", out, expect)
+	}
+}
+
+func readFile(t *testing.T, f string) string {
+	t.Helper()
+	out, err := ioutil.ReadFile(f)
 	if err != nil {
 		t.Fatal(err)
 	}
-	out, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(expect) != string(out) {
-		t.Errorf("\n   out:\n%s\nexpect:\n%s", string(out), string(expect))
-	}
+	return strings.ReplaceAll(string(out), "\r", "")
 }
 
 func cp(src, dst string) (err error) {

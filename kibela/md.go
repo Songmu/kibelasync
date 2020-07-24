@@ -19,6 +19,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// MD represents local Markdown file
 type MD struct {
 	ID          ID
 	FrontMatter *Meta
@@ -28,6 +29,7 @@ type MD struct {
 	dir, filepath string
 }
 
+// NewMD returns new MD
 func NewMD(fpath string, r io.Reader, title string, coEdit bool, dir string) (*MD, error) {
 	m := &MD{
 		filepath: fpath,
@@ -49,6 +51,7 @@ func NewMD(fpath string, r io.Reader, title string, coEdit bool, dir string) (*M
 	return m, nil
 }
 
+// Meta is a meta information of entry rendered as FrontMatter
 type Meta struct {
 	Title  string   `yaml:"title"`
 	Author string   `yaml:"author,omitempty"`
@@ -102,6 +105,7 @@ func (m *MD) save() error {
 	return nil
 }
 
+// LoadMD loads MD from file
 func LoadMD(fpath string) (*MD, error) {
 	fname := filepath.Base(fpath)
 	stuffs := strings.Split(fname, ".")
@@ -144,7 +148,8 @@ func (m *MD) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
 	if m.FrontMatter == nil {
 		m.FrontMatter = &Meta{}
 	}
-	contents := strings.SplitN(string(b), "---\n", 3)
+	str := strings.ReplaceAll(string(b), "\r", "")
+	contents := strings.SplitN(str, "---\n", 3)
 	if len(contents) == 3 && contents[0] == "" {
 		if err := yaml.Unmarshal([]byte(contents[1]), m.FrontMatter); err != nil {
 			if forceFrontmatter {
@@ -207,6 +212,7 @@ func (m *MD) toNote() *Note {
 	}
 }
 
+// PushMD pushes MD to Kibela
 func (ki *Kibela) PushMD(m *MD) error {
 	n := m.toNote()
 	if err := ki.pushNote(n); err != nil {
@@ -215,6 +221,7 @@ func (ki *Kibela) PushMD(m *MD) error {
 	return os.Chtimes(m.filepath, n.UpdatedAt.Time, n.UpdatedAt.Time)
 }
 
+// PublishMD publishes new MD to Kibela
 func (ki *Kibela) PublishMD(m *MD, save bool) error {
 	groupIDs := make([]string, len(m.FrontMatter.Groups))
 	for i, g := range m.FrontMatter.Groups {

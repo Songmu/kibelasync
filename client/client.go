@@ -17,10 +17,12 @@ const (
 	userAgentBase = "Songmu-kibelasync/%s (+https://github.com/Songmu/kibelasync)"
 )
 
+// Doer is an interface for mocking http client
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
+// Client is http client for kibela
 type Client struct {
 	token, endpoint string
 	userAgent       string
@@ -34,6 +36,7 @@ type budget struct {
 	Remaining int `json:"remaining,string"`
 }
 
+// New returns new http client
 func New(ver, team, token string) (*Client, error) {
 	cli := &Client{token: token}
 	cli.endpoint = fmt.Sprintf(endpointBase, team)
@@ -43,6 +46,7 @@ func New(ver, team, token string) (*Client, error) {
 	return cli, nil
 }
 
+// Do GraphQL request
 func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 	pa.Query = strings.TrimSpace(pa.Query)
 	isQuery := !strings.HasPrefix(pa.Query, "mutation")
@@ -110,6 +114,7 @@ func (cli *Client) Do(pa *Payload) (json.RawMessage, error) {
 	return gResp.Data, resErr
 }
 
+// Payload is GraphQL payload
 type Payload struct {
 	Query     string      `json:"query"`
 	Variables interface{} `json:"variables,omitempty"`

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Comment represents comment of Kibela
 type Comment struct {
 	ID          `json:"id"`
 	Content     string `json:"content"`
