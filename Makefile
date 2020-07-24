@@ -12,13 +12,14 @@ deps:
 
 .PHONY: devel-deps
 devel-deps: deps
-	GO111MODULE=off go get ${u} \
-	  golang.org/x/lint/golint                  \
-	  github.com/mattn/goveralls                \
-	  github.com/Songmu/godzil/cmd/godzil       \
-	  github.com/Songmu/goxz/cmd/goxz           \
-	  github.com/Songmu/gocredits/cmd/gocredits \
-	  github.com/tcnksm/ghr
+	sh -c '\
+	tmpdir=$$(mktemp -d); \
+	cd $$tmpdir; \
+	go get ${u} \
+	  golang.org/x/lint/golint            \
+	  github.com/Songmu/godzil/cmd/godzil \
+	  github.com/tcnksm/ghr; \
+	rm -rf $$tmpdir'
 
 .PHONY: test
 test: deps
@@ -46,16 +47,14 @@ bump: devel-deps
 	godzil release
 
 CREDITS: go.sum devel-deps
-	gocredits -w
+	godzil credits -w
 
+DIST_DIR ?= dist/v$(VERSION)
 .PHONY: crossbuild
 crossbuild: CREDITS
-	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
-      -os=linux,darwin -d=./dist/v$(VERSION) ./cmd/*
+	env CGO_ENABLED=0 godzil crossbuild -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
+      -os=linux,darwin -d=$(DIST_DIR) ./cmd/*
 
 .PHONY: upload
 upload:
-	ghr v$(VERSION) dist/v$(VERSION)
-
-.PHONY: release
-release: bump crossbuild upload
+	ghr -body="$$(godzil changelog --latest -F markdown)" v$(VERSION) $(DIST_DIR)
