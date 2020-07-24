@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.6](https://github.com/Songmu/kibelasync/compare/v0.0.5...v0.0.6) (2020-07-24)
+
+* define type kibela.User struct [#10](https://github.com/Songmu/kibelasync/pull/10) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.5](https://github.com/Songmu/kibelasync/compare/v0.0.4...v0.0.5) (2020-07-23)
 
 * udpate deps [#9](https://github.com/Songmu/kibelasync/pull/9) ([Songmu](https://github.com/Songmu))
