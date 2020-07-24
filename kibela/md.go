@@ -148,7 +148,8 @@ func (m *MD) loadContentFromReader(r io.Reader, forceFrontmatter bool) error {
 	if m.FrontMatter == nil {
 		m.FrontMatter = &Meta{}
 	}
-	contents := strings.SplitN(string(b), "---\n", 3)
+	str := strings.ReplaceAll(string(b), "\r", "")
+	contents := strings.SplitN(str, "---\n", 3)
 	if len(contents) == 3 && contents[0] == "" {
 		if err := yaml.Unmarshal([]byte(contents[1]), m.FrontMatter); err != nil {
 			if forceFrontmatter {
