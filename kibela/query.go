@@ -44,7 +44,7 @@ func buildNotesArg(num int, folderID ID, cursor string, hasLimit bool) string {
 	fmt.Fprintf(buf, "first: %d", num)
 	if cursor != "" {
 		// cursor is base64 encoded number. ex. "Nw" = 7
-		fmt.Fprintf(buf, ", after: %s", cursor)
+		fmt.Fprintf(buf, `, after: "%s"`, cursor)
 	}
 	if !folderID.Empty() {
 		fmt.Fprintf(buf, `, folderId: "%s"`, folderID.Raw())
