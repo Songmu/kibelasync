@@ -23,7 +23,12 @@ func getNoteQuery(id ID) string {
     title
     content
     coediting
-    folderName
+    folders {
+      after
+      before
+      first
+      last
+    }
     groups {
       name
       id
@@ -125,7 +130,12 @@ func listFullNotePaginateQuery(num int, folderID ID, cursor string, hasLimit boo
         title
         content
         coediting
-        folderName
+        folders {
+          after
+          before
+          first
+          last
+        }
         groups {
           name
           id
