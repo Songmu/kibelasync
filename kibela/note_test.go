@@ -15,7 +15,12 @@ func TestNoteUnmarshalJSON(t *testing.T) {
      "title": "APIテストpublic",
      "content": "コンテント!\nコンテント",
      "coediting": true,
-     "folderName": "testtop/testsub1",
+     "folders": [
+	   {
+         "folderName": "testtop/testsub1",
+         "groupId": "R3JvdXAvMQ"
+       }
+	 ],
      "groups": [
        {
          "name": "Home",
@@ -36,7 +41,12 @@ func TestNoteUnmarshalJSON(t *testing.T) {
 		Title:     "APIテストpublic",
 		Content:   "コンテント!\nコンテント",
 		CoEditing: true,
-		Folder:    "testtop/testsub1",
+		Folders: []*FolderInput{
+			{
+				FolderName: "testtop/testsub1",
+				GroupId:    ID("R3JvdXAvMQ"),
+			},
+		},
 		Groups: []*Group{
 			{
 				ID:   ID("R3JvdXAvMQ"),
