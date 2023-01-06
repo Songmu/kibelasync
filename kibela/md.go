@@ -54,10 +54,10 @@ func NewMD(fpath string, r io.Reader, title string, coEdit bool, dir string) (*M
 
 // Meta is a meta information of entry rendered as FrontMatter
 type Meta struct {
-	Title  string   `yaml:"title"`
-	Author string   `yaml:"author,omitempty"`
-	Groups []string `yaml:"groups,flow"`
-	Folder string   `yaml:"folder,omitempty"`
+	Title   string         `yaml:"title"`
+	Author  string         `yaml:"author,omitempty"`
+	Groups  []string       `yaml:"groups,flow"`
+	Folders []*FolderInput `yaml:"folders,flow"`
 }
 
 func (me *Meta) coediting() bool {
@@ -204,7 +204,7 @@ func (m *MD) toNote() *Note {
 		Title:     m.FrontMatter.Title,
 		Content:   m.Content,
 		CoEditing: m.FrontMatter.coediting(),
-		Folder:    m.FrontMatter.Folder,
+		Folders:   m.FrontMatter.Folders,
 		Groups:    groups,
 		Author: User{
 			Account: m.FrontMatter.Author,
@@ -241,7 +241,7 @@ func (ki *Kibela) PublishMD(ctx context.Context, m *MD, save bool) error {
 			Input: &noteInput{
 				Title:     m.FrontMatter.Title,
 				Content:   m.Content,
-				Folder:    m.FrontMatter.Folder,
+				Folders:   m.FrontMatter.Folders,
 				CoEditing: m.FrontMatter.coediting(),
 				GroupIDs:  groupIDs,
 			},

@@ -19,7 +19,12 @@ func newTestMD() *MD {
 		FrontMatter: &Meta{
 			Title:  "たいとる！",
 			Author: "Songmu",
-			Folder: "hoge/fuga",
+			Folders: []*FolderInput{
+				{
+					FolderName: "testtop/testsub1",
+					GroupId:    ID("R3JvdXAvMQ"),
+				},
+			},
 			Groups: []string{"Public", "Hobby"},
 		},
 		Content: "Hello World!\nこんにちは!\n",
@@ -123,7 +128,7 @@ func TestMD_fullContent(t *testing.T) {
 title: たいとる！
 author: Songmu
 groups: [Public, Hobby]
-folder: hoge/fuga
+folders: [{foldername: testtop/testsub1, groupid: R3JvdXAvMQ}]
 ---
 
 Hello World!
@@ -249,6 +254,10 @@ func TestKibela_PublishMD(t *testing.T) {
       "note": {
         "id": "%s",
         "updatedAt": "%s",
+        "folders":[{
+          "folderName": "hoge/fuga",
+          "groupId": "R3JvdXAvMQ"
+        }],
         "groups": [{
           "name": "Home"
         }],
@@ -322,7 +331,12 @@ func TestKibela_PushMD(t *testing.T) {
       "title": "APIテストpublic",
       "content": "コンテント!\nコンテント",
       "coediting": true,
-      "folderName": "testtop/testsub1",
+      "folders": [
+	    {
+          "folderName": "testtop/testsub1",
+          "groupId": "R3JvdXAvMQ"
+        }
+	  ],
       "groups": [
         {
           "name": "Home",
